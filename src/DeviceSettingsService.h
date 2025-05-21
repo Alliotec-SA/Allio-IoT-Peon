@@ -34,6 +34,10 @@ class DeviceSettings {
 class DeviceSettingsService : public StatefulService<DeviceSettings> {
  public:
   DeviceSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
+  String getToken();
+  String getDevEUI();
+  String getServer();
+  String getPath();
   void begin();
 
  private:

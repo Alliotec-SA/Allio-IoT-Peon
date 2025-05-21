@@ -11,6 +11,38 @@ DeviceSettingsService::DeviceSettingsService(AsyncWebServer* server, FS* fs, Sec
     _fsPersistence(DeviceSettings::read, DeviceSettings::update, this, fs, DEVICE_SETTINGS_FILE) {
 }
 
+String DeviceSettingsService::getToken() {
+  String value;
+  read([&](DeviceSettings& settings) {
+    value = settings.token;
+  });
+  return value;
+}
+
+String DeviceSettingsService::getDevEUI() {
+  String value;
+  read([&](DeviceSettings& settings) {
+    value = settings.devEUI;
+  });
+  return value;
+}
+
+String DeviceSettingsService::getServer() {
+  String value;
+  read([&](DeviceSettings& settings) {
+    value = settings.server;
+  });
+  return value;
+}
+
+String DeviceSettingsService::getPath() {
+  String value;
+  read([&](DeviceSettings& settings) {
+    value = settings.path;
+  });
+  return value;
+}
+
 void DeviceSettingsService::begin() {
   _fsPersistence.readFromFS();
 }

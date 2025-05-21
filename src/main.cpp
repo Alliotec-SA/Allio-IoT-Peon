@@ -28,6 +28,10 @@ void setup() {
 
   // start the server
   server.begin();
+
+  delay(2000);
+  Serial.println(deviceSettingsService.getToken());
+   Serial.println(deviceSettingsService.getDevEUI());
 }
 
 void loop() {
