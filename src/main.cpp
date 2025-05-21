@@ -1,17 +1,17 @@
 #include <ESP8266React.h>
-#include <LightMqttSettingsService.h>
+#include <DeviceSettingsService.h>
 #include <LightStateService.h>
 
 #define SERIAL_BAUD_RATE 115200
 
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server);
-LightMqttSettingsService lightMqttSettingsService =
-    LightMqttSettingsService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
-LightStateService lightStateService = LightStateService(&server,
+DeviceSettingsService deviceSettingsService =
+    DeviceSettingsService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
+/*LightStateService lightStateService = LightStateService(&server,
                                                         esp8266React.getSecurityManager(),
                                                         esp8266React.getMqttClient(),
-                                                        &lightMqttSettingsService);
+                                                        &lightMqttSettingsService);*/
 
 void setup() {
   // start serial and filesystem
@@ -21,10 +21,10 @@ void setup() {
   esp8266React.begin();
 
   // load the initial light settings
-  lightStateService.begin();
+  //lightStateService.begin();
 
-  // start the light service
-  lightMqttSettingsService.begin();
+  // start the device settings service
+  deviceSettingsService.begin();
 
   // start the server
   server.begin();
