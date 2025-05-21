@@ -7,9 +7,9 @@ import { Tab } from '@mui/material';
 import { RouterTabs, useRouterTab, useLayoutTitle } from '../components';
 
 import DemoInformation from './DemoInformation';
-import LightStateRestForm from './LightStateRestForm';
-import LightMqttSettingsForm from './LightMqttSettingsForm';
-import LightStateWebSocketForm from './LightStateWebSocketForm';
+//import LightStateRestForm from './LightStateRestForm';
+import DeviceSettingsForm from './DeviceSettingsForm';
+//import LightStateWebSocketForm from './LightStateWebSocketForm';
 
 const DemoProject: FC = () => {
   useLayoutTitle("Demo Project");
@@ -17,6 +17,16 @@ const DemoProject: FC = () => {
 
   return (
     <>
+      <RouterTabs value={routerTab}>
+          <Tab value="information" label="Device Information" />
+          <Tab value="deviceSettings" label="Device Settings" />
+        </RouterTabs>
+        <Routes>
+          <Route path="information" element={<DemoInformation />} />
+          <Route path="deviceSettings" element={<DeviceSettingsForm />} />
+          <Route path="/*" element={<Navigate replace to="information" />} />
+        </Routes>
+      {/* FROM ORIGINAL FRAMEWORK
       <RouterTabs value={routerTab}>
         <Tab value="information" label="Information" />
         <Tab value="rest" label="REST Example" />
@@ -29,7 +39,7 @@ const DemoProject: FC = () => {
         <Route path="mqtt" element={<LightMqttSettingsForm />} />
         <Route path="socket" element={<LightStateWebSocketForm />} />
         <Route path="/*" element={<Navigate replace to="information" />} />
-      </Routes>
+      </Routes>*/}
     </>
   );
 };
