@@ -8,7 +8,7 @@ import LayoutMenuItem from '../components/layout/LayoutMenuItem';
 
 const ProjectMenu: FC = () => (
   <List>
-    <LayoutMenuItem icon={SettingsRemoteIcon} label="Demo Project" to={`/${PROJECT_PATH}/demo`} />
+    <LayoutMenuItem icon={SettingsRemoteIcon} label="Device Settings" to={`/${PROJECT_PATH}/demo`} />
   </List>
 );
 

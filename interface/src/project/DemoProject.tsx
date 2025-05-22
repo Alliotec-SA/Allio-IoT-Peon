@@ -12,7 +12,7 @@ import DeviceSettingsForm from './DeviceSettingsForm';
 //import LightStateWebSocketForm from './LightStateWebSocketForm';
 
 const DemoProject: FC = () => {
-  useLayoutTitle("Demo Project");
+  useLayoutTitle("Device Settings");
   const { routerTab } = useRouterTab();
 
   return (
