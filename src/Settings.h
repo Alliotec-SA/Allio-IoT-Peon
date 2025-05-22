@@ -12,4 +12,16 @@
 #define SOLAR_FACTOR 11.11 //(1)/(10/110)
 #define UPDATE_TIME 60000
 
+struct LastResult {
+    unsigned long signalPeriod;
+    bool timeout;
+    bool ready;
+    unsigned long lastChecked;
+    uint8_t batteryPercent;
+    float batteryVoltage;
+    float solarVoltage;
+    float signalVoltage;
+    float battery;
+  };
+
 #endif

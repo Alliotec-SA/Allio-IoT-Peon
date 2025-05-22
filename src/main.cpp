@@ -1,10 +1,10 @@
 #include <ESP8266React.h>
-#include <DeviceSettingsService.h>
-#include <LightStateService.h>
-#include "CycleAnalyzer.h"
 #include <Adafruit_ADS1X15.h>
 #include "Functions.h"
 #include "Settings.h"
+#include <DeviceSettingsService.h>
+#include <DeviceStateService.h>
+#include "CycleAnalyzer.h"
 
 
 
@@ -14,13 +14,13 @@ AsyncWebServer server(80);
 ESP8266React esp8266React(&server);
 DeviceSettingsService deviceSettingsService =
     DeviceSettingsService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
-/*LightStateService lightStateService = LightStateService(&server,
-                                                        esp8266React.getSecurityManager(),
-                                                        esp8266React.getMqttClient(),
-                                                        &lightMqttSettingsService);*/
+DeviceStateService deviceStateService =
+    DeviceStateService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
 
 Adafruit_ADS1115 ads;
 CycleAnalyzer analyzer(PIN_SIGNAL, CHANNEL_SIGNAL, SIGNAL_TIMEOUT, ads);
+LastResult lastResult;
+
 unsigned long t0;
 
 
@@ -36,6 +36,7 @@ void setup() {
 
   // start the device settings service
   deviceSettingsService.begin();
+  deviceStateService.begin();
 
   // start the server
   server.begin();
@@ -62,17 +63,27 @@ void loop() {
   }
   if (analyzer.isReady()) {
     auto result = analyzer.getResult();
+    lastResult.batteryVoltage = getBatteryVoltage();
+    lastResult.batteryPercent = ((int)lastResult.batteryVoltage/12)*100;
+    lastResult.solarVoltage = getSolarPannelVoltage();
+    lastResult.ready = result.ready;
+    lastResult.timeout = result.timeout;
+    lastResult.lastChecked = millis();
+    deviceStateService.updateLastValue(lastResult);
     
     if(!result.timeout) 
     {
-      float v = getSignalVp(result.vMax);
-      Serial.print("Periodo: "); Serial.println(result.periodMs);
+      lastResult.signalPeriod = result.periodMs;
+      lastResult.signalVoltage = (int) getSignalVp(result.vMax);
+
+
+      Serial.print("Periodo: "); Serial.println(lastResult.signalPeriod);
       Serial.print("Vmin: "); Serial.println(result.vMin, 3);
       Serial.print("Vmax: "); Serial.println(result.vMax, 3);
-      Serial.print("Vp: "); Serial.println(v);
-      Serial.print("Baterry: "); Serial.println(getBatteryVoltage(), 4);
-      Serial.print("Pannel: ");  Serial.println(getSolarPannelVoltage(), 4);
-      sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), getBatteryVoltage(), getBatteryVoltage()/12, getSolarPannelVoltage(), getSignalVp(result.vMax),result.periodMs, 0);
+      Serial.print("Vp: "); Serial.println(lastResult.signalVoltage);
+      Serial.print("Baterry: "); Serial.println(lastResult.batteryVoltage, 4);
+      Serial.print("Pannel: ");  Serial.println(lastResult.solarVoltage, 4);
+      sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, 0);
     }else{
       Serial.print("Timeout: "); Serial.println(result.periodMs);
     }
