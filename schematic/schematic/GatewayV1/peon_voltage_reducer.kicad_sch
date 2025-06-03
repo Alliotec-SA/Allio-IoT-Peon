@@ -1722,6 +1722,16 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "8800v, en vacio.\nResolucion de 100v.\n5000v aun respeta el animal"
+		(exclude_from_sim no)
+		(at 186.182 137.16 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f69d6c7e-bad1-42e5-8630-5e2504610ed9")
+	)
 	(junction
 		(at 204.47 100.33)
 		(diameter 0)
