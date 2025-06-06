@@ -885,6 +885,150 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "easyEDA:1206W4F1002T5E"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "10kΩ"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Footprint" "easyEDA:R1206"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://atta.szlcsc.com/upload/public/pdf/source/20200306/C422600_1E6D84923E4A46A82E41ADD87F860B5C.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Type:Thick Film Resistors Resistance:10kΩ Tolerance:±1% Tolerance:±1% Power(Watts): Overload Voltage (Max): Temperature Coefficient:±100ppm/°C Temperature Coefficient:±100ppm/°C Operating Temperature Range:-55°C~+155°C Operating Temperature Range:-55°C~+155°C"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Manufacturer Part" "1206W4F1002T5E"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Manufacturer" "UNI-ROYAL(厚声)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Supplier Part" "C17902"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Supplier" "LCSC"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC Part Name" "10kΩ ±1% 250mW 厚膜电阻"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "1206W4F1002T5E_1_0"
+				(rectangle
+					(start -2.54 -1.016)
+					(end 2.54 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 0.0254 0.0254)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0.0254 0.0254)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 0.0254 0.0254)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0.0254 0.0254)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "easyEDA:ESP-12F(ESP8266MOD)"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1766,12 +1910,6 @@
 		(uuid "8e1e1984-7d30-4100-b0a1-89333cfbd15b")
 	)
 	(junction
-		(at 25.4 24.13)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "96568cf6-5bc3-47c5-bc58-bdc7737fcb67")
-	)
-	(junction
 		(at 53.34 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1784,16 +1922,16 @@
 		(uuid "b85521e0-28ae-4e24-abfe-257beec66185")
 	)
 	(junction
+		(at 25.4 25.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ce3c86c4-bf7a-42b6-8b0b-55aca9d6bb10")
+	)
+	(junction
 		(at 254 64.77)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "cfdc6fc4-7976-46d3-920e-f7f18bd93fd0")
-	)
-	(junction
-		(at 21.59 73.66)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "dc0ed59f-c222-4a3e-95b5-aca37d34da09")
 	)
 	(junction
 		(at 254 21.59)
@@ -1849,6 +1987,16 @@
 	)
 	(wire
 		(pts
+			(xy 22.86 25.4) (xy 25.4 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0e2b9097-38af-4d44-9a4f-8bec4dc7c124")
+	)
+	(wire
+		(pts
 			(xy 240.03 21.59) (xy 246.38 21.59)
 		)
 		(stroke
@@ -1856,16 +2004,6 @@
 			(type default)
 		)
 		(uuid "10ba58e4-7254-4394-8b0e-e21952f41005")
-	)
-	(wire
-		(pts
-			(xy 22.86 24.13) (xy 25.4 24.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15973ba1-e9ac-40f4-8791-2042fa8e83ab")
 	)
 	(wire
 		(pts
@@ -1919,13 +2057,13 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 39.37) (xy 25.4 39.37)
+			(xy 30.48 41.91) (xy 22.86 41.91)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "2c3846b1-3cc0-48c1-87f4-a50d24d73cef")
+		(uuid "24413d5e-d93b-41e6-8256-c6a1e4ecd2bc")
 	)
 	(wire
 		(pts
@@ -1949,7 +2087,7 @@
 	)
 	(wire
 		(pts
-			(xy 21.59 76.2) (xy 21.59 73.66)
+			(xy 21.59 62.23) (xy 21.59 76.2)
 		)
 		(stroke
 			(width 0)
@@ -2009,6 +2147,16 @@
 	)
 	(wire
 		(pts
+			(xy 25.4 24.13) (xy 25.4 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3f88cd23-6229-4f59-9d64-c5396cd0a71f")
+	)
+	(wire
+		(pts
 			(xy 40.64 120.65) (xy 43.18 120.65)
 		)
 		(stroke
@@ -2039,13 +2187,13 @@
 	)
 	(wire
 		(pts
-			(xy 22.86 41.91) (xy 22.86 34.29)
+			(xy 27.94 35.56) (xy 27.94 36.83)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "551c8a6d-752c-4d26-9b61-620add45c832")
+		(uuid "56eeb20d-652b-452e-86f7-32c599f9e851")
 	)
 	(wire
 		(pts
@@ -2089,16 +2237,6 @@
 	)
 	(wire
 		(pts
-			(xy 21.59 73.66) (xy 29.21 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6337dbc4-f98a-495b-bf8a-c85097251683")
-	)
-	(wire
-		(pts
 			(xy 246.38 31.75) (xy 246.38 34.29)
 		)
 		(stroke
@@ -2109,13 +2247,23 @@
 	)
 	(wire
 		(pts
-			(xy 27.94 24.13) (xy 27.94 26.67)
+			(xy 30.48 39.37) (xy 25.4 39.37)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "6cf69a4f-487e-4200-8998-993f0d22f473")
+		(uuid "696f1dc2-6ce4-47d6-a473-e8e5a4617e24")
+	)
+	(wire
+		(pts
+			(xy 25.4 39.37) (xy 25.4 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6982a3cb-2e03-4d26-a513-7f82be8f67ac")
 	)
 	(wire
 		(pts
@@ -2129,16 +2277,6 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 24.13) (xy 25.4 26.67)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7131dac1-27ec-413e-a6bd-3a6cd9d4a0e5")
-	)
-	(wire
-		(pts
 			(xy 139.7 38.1) (xy 139.7 43.18)
 		)
 		(stroke
@@ -2146,16 +2284,6 @@
 			(type default)
 		)
 		(uuid "73f1aa13-cd97-4be4-a1e8-ad59b8062cdf")
-	)
-	(wire
-		(pts
-			(xy 27.94 36.83) (xy 30.48 36.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "77b7234f-64f8-4b35-8710-d0a44f696151")
 	)
 	(wire
 		(pts
@@ -2176,16 +2304,6 @@
 			(type default)
 		)
 		(uuid "88bf14b8-7178-4f12-a897-e9567599c0fd")
-	)
-	(wire
-		(pts
-			(xy 30.48 41.91) (xy 22.86 41.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8956e16a-c91c-4a67-a12d-dcb78d1c61c7")
 	)
 	(wire
 		(pts
@@ -2236,16 +2354,6 @@
 			(type default)
 		)
 		(uuid "93b742d3-f6d6-4552-b819-d7ea21081630")
-	)
-	(wire
-		(pts
-			(xy 25.4 24.13) (xy 27.94 24.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9573db32-30c5-4a8f-a941-e5c9187ceba1")
 	)
 	(wire
 		(pts
@@ -2409,16 +2517,6 @@
 	)
 	(wire
 		(pts
-			(xy 39.37 73.66) (xy 43.18 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cb029f6d-6e44-4347-bc06-963636d6dd1f")
-	)
-	(wire
-		(pts
 			(xy 53.34 116.84) (xy 53.34 125.73)
 		)
 		(stroke
@@ -2429,13 +2527,13 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 39.37) (xy 25.4 34.29)
+			(xy 22.86 41.91) (xy 22.86 35.56)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ccca0021-685d-47c4-b2c7-fe85529511f6")
+		(uuid "cdd0b4e6-2c47-4bf0-a78a-8ba168d49570")
 	)
 	(wire
 		(pts
@@ -2469,16 +2567,6 @@
 	)
 	(wire
 		(pts
-			(xy 27.94 34.29) (xy 27.94 36.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d70d34b4-830d-4ab6-8d0f-6f062010db1d")
-	)
-	(wire
-		(pts
 			(xy 179.07 31.75) (xy 181.61 31.75)
 		)
 		(stroke
@@ -2486,16 +2574,6 @@
 			(type default)
 		)
 		(uuid "d88c1f1e-5760-4637-b1bb-391063786ac0")
-	)
-	(wire
-		(pts
-			(xy 21.59 62.23) (xy 21.59 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d8aa07c0-7237-49ca-9e8d-5896f5c9111b")
 	)
 	(wire
 		(pts
@@ -2519,6 +2597,16 @@
 	)
 	(wire
 		(pts
+			(xy 25.4 25.4) (xy 27.94 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0cc38b9-bae6-497a-a133-c2b13c06ed79")
+	)
+	(wire
+		(pts
 			(xy 118.11 43.18) (xy 124.46 43.18)
 		)
 		(stroke
@@ -2536,6 +2624,16 @@
 			(type default)
 		)
 		(uuid "e6e9816e-1085-462f-a5fe-5b50e4466eb5")
+	)
+	(wire
+		(pts
+			(xy 27.94 36.83) (xy 30.48 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e92e1542-3b3a-4fcb-ba2e-541c2d21dc93")
 	)
 	(wire
 		(pts
@@ -2596,16 +2694,6 @@
 			(type default)
 		)
 		(uuid "fa28203c-dd52-4df0-b48c-436ccd8fea93")
-	)
-	(wire
-		(pts
-			(xy 22.86 26.67) (xy 22.86 24.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fa861ae4-a191-4502-a4bb-ac7e3a2128a7")
 	)
 	(wire
 		(pts
@@ -3013,28 +3101,6 @@
 			)
 		)
 	)
-	(global_label "ENA"
-		(shape input)
-		(at 43.18 73.66 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9343f928-95f4-4905-96a4-69810d3f9b4e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 49.7333 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "ENA_READ_VOLTAGE"
 		(shape input)
 		(at 139.7 43.18 270)
@@ -3256,43 +3322,24 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 22.86 30.48 0)
+		(lib_id "easyEDA:1206W4F1002T5E")
+		(at 22.86 30.48 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "0344b385-62dd-43ef-aa72-9b9ba9e5f435")
 		(property "Reference" "R11"
-			(at 25.4 29.2099 0)
+			(at 19.304 29.464 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Value" "10K"
-			(at 25.4 31.7499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 21.082 30.48 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
+		(property "Value" "10kΩ"
 			(at 22.86 30.48 0)
 			(effects
 				(font
@@ -3301,7 +3348,97 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
+		(property "Footprint" "easyEDA:R1206"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://atta.szlcsc.com/upload/public/pdf/source/20200306/C422600_1E6D84923E4A46A82E41ADD87F860B5C.pdf"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Type:Thick Film Resistors Resistance:10kΩ Tolerance:±1% Tolerance:±1% Power(Watts): Overload Voltage (Max): Temperature Coefficient:±100ppm/°C Temperature Coefficient:±100ppm/°C Operating Temperature Range:-55°C~+155°C Operating Temperature Range:-55°C~+155°C"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MFR.Part " "1206W4F1002T5E"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(厚声)"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C17902"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Precio" "0.01"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Part" "1206W4F1002T5E"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier Part" "C17902"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 22.86 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part Name" "10kΩ ±1% 250mW 厚膜电阻"
 			(at 22.86 30.48 0)
 			(effects
 				(font
@@ -4693,74 +4830,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Switch:SW_Push")
-		(at 34.29 73.66 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "a7353250-71c4-4229-890d-1b8bb03673d9")
-		(property "Reference" "SW1"
-			(at 34.29 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SW_Push"
-			(at 34.29 68.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 34.29 68.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 34.29 68.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Push button switch, generic, two pins"
-			(at 34.29 73.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "dbd7f457-947a-40e0-87a5-21e9e2497673")
-		)
-		(pin "2"
-			(uuid "da816e89-f290-4912-bfc8-3c1faf5b7e64")
-		)
-		(instances
-			(project ""
-				(path "/96f79fb2-b3fe-4f1e-9cb1-72e22a4193a3"
-					(reference "SW1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 139.7 34.29 180)
 		(unit 1)
@@ -5105,35 +5174,25 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 25.4 30.48 0)
+		(lib_id "easyEDA:1206W4F1002T5E")
+		(at 27.94 30.48 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "dd0e632c-4516-469a-9611-eb808dfa169c")
 		(property "Reference" "R10"
-			(at 27.94 29.2099 0)
+			(at 27.432 29.464 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Value" "10K"
-			(at 27.94 31.7499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 23.622 30.48 90)
+		(property "Value" "10kΩ"
+			(at 27.94 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5141,8 +5200,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 25.4 30.48 0)
+		(property "Footprint" "easyEDA:R1206"
+			(at 27.94 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5150,8 +5209,62 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 25.4 30.48 0)
+		(property "Datasheet" "https://atta.szlcsc.com/upload/public/pdf/source/20200306/C422600_1E6D84923E4A46A82E41ADD87F860B5C.pdf"
+			(at 27.94 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Type:Thick Film Resistors Resistance:10kΩ Tolerance:±1% Tolerance:±1% Power(Watts): Overload Voltage (Max): Temperature Coefficient:±100ppm/°C Temperature Coefficient:±100ppm/°C Operating Temperature Range:-55°C~+155°C Operating Temperature Range:-55°C~+155°C"
+			(at 27.94 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Part" "1206W4F1002T5E"
+			(at 27.94 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(厚声)"
+			(at 27.94 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier Part" "C17902"
+			(at 27.94 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 27.94 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part Name" "10kΩ ±1% 250mW 厚膜电阻"
+			(at 27.94 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5651,35 +5764,25 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 27.94 30.48 0)
+		(lib_id "easyEDA:1206W4F1002T5E")
+		(at 25.4 30.48 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "f90e88ff-e6f4-4a39-9743-bfe747bcce87")
 		(property "Reference" "R9"
-			(at 30.48 29.2099 0)
+			(at 24.13 29.464 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Value" "10K"
-			(at 30.48 31.7499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 26.162 30.48 90)
+		(property "Value" "10kΩ"
+			(at 25.4 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5687,8 +5790,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 27.94 30.48 0)
+		(property "Footprint" "easyEDA:R1206"
+			(at 25.4 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5696,8 +5799,62 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 27.94 30.48 0)
+		(property "Datasheet" "https://atta.szlcsc.com/upload/public/pdf/source/20200306/C422600_1E6D84923E4A46A82E41ADD87F860B5C.pdf"
+			(at 25.4 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Type:Thick Film Resistors Resistance:10kΩ Tolerance:±1% Tolerance:±1% Power(Watts): Overload Voltage (Max): Temperature Coefficient:±100ppm/°C Temperature Coefficient:±100ppm/°C Operating Temperature Range:-55°C~+155°C Operating Temperature Range:-55°C~+155°C"
+			(at 25.4 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Part" "1206W4F1002T5E"
+			(at 25.4 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(厚声)"
+			(at 25.4 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier Part" "C17902"
+			(at 25.4 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 25.4 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part Name" "10kΩ ±1% 250mW 厚膜电阻"
+			(at 25.4 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
