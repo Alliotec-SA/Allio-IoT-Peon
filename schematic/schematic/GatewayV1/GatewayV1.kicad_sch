@@ -1098,7 +1098,7 @@
 					(hide yes)
 				)
 			)
-			(property "Footprint" "ProLib_pcs_2025-06-03:WIFIM-SMD_ESP-12F-ESP8266MOD"
+			(property "Footprint" "easyEDA:WIFIM-SMD_ESP-12F-ESP8266MOD"
 				(at 0 0 0)
 				(effects
 					(font
