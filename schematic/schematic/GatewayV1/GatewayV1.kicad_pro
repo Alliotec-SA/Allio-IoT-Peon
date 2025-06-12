@@ -615,6 +615,10 @@
     [
       "e579c8cf-f573-4d6c-8577-4de549254dc5",
       "PEON_VOLTAGE_REDUCER"
+    ],
+    [
+      "e222a565-1879-46d7-9f15-c1d89968cbe2",
+      "PowerSupply"
     ]
   ],
   "text_variables": {}

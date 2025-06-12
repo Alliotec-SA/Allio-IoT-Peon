@@ -1,4 +1,4 @@
-24765344508249540
+24779342083727026
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -99519,6 +99519,20 @@ C1206
 2
 2
 easyEDA
+CAP-SMD_BD6.3-L6.6-W6.6-FD
+
+
+0
+2
+2
+easyEDA
+CONN-TH_6P-P5.00_WJ126V-5.0-6P
+
+
+0
+6
+6
+easyEDA
 CONN-TH_KF88SA-16.0-2P
 
 
@@ -99533,12 +99547,40 @@ DIO-BG-TH_W10M
 4
 4
 easyEDA
+HDR-TH_12P-P2.54-V-M-R2-C6-S2.54
+
+
+0
+12
+12
+easyEDA
+IND-SMD_L7.0-W6.6
+
+
+0
+2
+2
+easyEDA
+IND-SMD_L10.4-W10.3
+
+
+0
+2
+2
+easyEDA
 MSOP-10_L3.0-W3.0-P0.50-LS5.0-BL
 
 
 0
 10
 10
+easyEDA
+R0603
+
+
+0
+2
+2
 easyEDA
 R1206
 
@@ -99617,12 +99659,26 @@ SW-SMD_L3.9-W3.0-P4.45
 2
 2
 easyEDA
+V-DFN3020-13-A_L3.0-W2.0-P0.45-BL-EP_AP6335X
+
+
+0
+9
+9
+easyEDA
 WIFIM-SMD_ESP-12F-ESP8266MOD
 
 
 0
 22
 22
+easyEDA
+WIRELM-SMD_32P-L15.5-W15.0-P1.00
+
+
+0
+32
+32
 ibSolutions
 PEON_IR_INSULATION_v1
 Resistor, Axial_DIN0204 series, Axial, Horizontal, pin pitch=5.08mm, 0.167W, length*diameter=3.6*1.6mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf
