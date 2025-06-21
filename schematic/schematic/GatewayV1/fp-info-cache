@@ -1,4 +1,4 @@
-24779342083727026
+24784591911617050
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -99568,6 +99568,13 @@ IND-SMD_L10.4-W10.3
 2
 2
 easyEDA
+LED0603-RD
+
+
+0
+2
+2
+easyEDA
 MSOP-10_L3.0-W3.0-P0.50-LS5.0-BL
 
 
@@ -99680,9 +99687,23 @@ WIRELM-SMD_32P-L15.5-W15.0-P1.00
 32
 32
 ibSolutions
+2Pin_L11.0mm_D1.5mm_P17mm
+Dual banana socket, footprint - 2 x 6mm drills
+banana socket
+0
+2
+2
+ibSolutions
 PEON_IR_INSULATION_v1
 Resistor, Axial_DIN0204 series, Axial, Horizontal, pin pitch=5.08mm, 0.167W, length*diameter=3.6*1.6mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf
 Resistor Axial_DIN0204 series Axial Horizontal pin pitch 5.08mm 0.167W length 3.6mm diameter 1.6mm
 0
 4
 4
+ibSolutions
+R_Axial_L31.2mm_D1.0mm_P34.0mm_Horizontal
+Resistor, Axial_DIN0411 series, Axial, Horizontal, pin pitch=12.7mm, 1W, length*diameter=9.9*3.6mm^2
+Resistor Axial_DIN0411 series Axial Horizontal pin pitch 12.7mm 1W length 9.9mm diameter 3.6mm
+0
+2
+2
