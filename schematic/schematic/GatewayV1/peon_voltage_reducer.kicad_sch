@@ -5,187 +5,6 @@
 	(uuid "32d9786b-4973-49c5-b081-6a56a869c1ef")
 	(paper "A4")
 	(lib_symbols
-		(symbol "CC1206KRX7R9BB104_1"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "C"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "100nF"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Footprint" "easyEDA:C1206"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://atta.szlcsc.com/upload/public/pdf/source/20170211/1486785656773.pdf"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Capacitance: Tolerance:±10% Tolerance:±10% Voltage Rated: Temperature Coefficient:"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Manufacturer Part" "CC1206KRX7R9BB104"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Manufacturer" "YAGEO(国巨)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Supplier Part" "C82601"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Supplier" "LCSC"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part Name" "100nF ±10% 50V"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "CC1206KRX7R9BB104_1_1_0"
-				(polyline
-					(pts
-						(xy -0.508 0) (xy -2.54 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -0.508 -2.032) (xy -0.508 2.032)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.508 2.032) (xy 0.508 -2.032)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 0) (xy 0.508 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 0.0254 0.0254)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 0.0254 0.0254)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "2"
-						(effects
-							(font
-								(size 0.0254 0.0254)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 0.0254 0.0254)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Connector:Conn_01x02_Pin"
 			(pin_names
 				(offset 1.016)
@@ -566,6 +385,15 @@
 					(hide yes)
 				)
 			)
+			(property "LCSC" "C19290"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(symbol "1206 J000T5E_1_0"
 				(rectangle
 					(start -2.54 -1.016)
@@ -702,6 +530,15 @@
 				)
 			)
 			(property "LCSC Part Name" "10kΩ ±1% 250mW 厚膜电阻"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C17902"
 				(at 0 0 0)
 				(effects
 					(font
@@ -854,6 +691,15 @@
 					(hide yes)
 				)
 			)
+			(property "LCSC" "C17984"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(symbol "1206W4F8200T5E_1_0"
 				(rectangle
 					(start -2.54 -1.016)
@@ -990,6 +836,15 @@
 				)
 			)
 			(property "LCSC Part Name" "100kΩ ±10%"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C118966"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1292,6 +1147,15 @@
 					(hide yes)
 				)
 			)
+			(property "LCSC" "C118929"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(symbol "3362P-1-202_C118929_1_0"
 				(polyline
 					(pts
@@ -1387,7 +1251,7 @@
 					)
 				)
 			)
-			(property "Value" ""
+			(property "Value" "BSS138-7-F"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1459,6 +1323,15 @@
 				)
 			)
 			(property "LCSC Part Name" "1个N沟道 耐压:50V 电流:200mA"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C40912"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1752,6 +1625,15 @@
 					(hide yes)
 				)
 			)
+			(property "LCSC" "C82601"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(symbol "CC1206KRX7R9BB104_1_0"
 				(polyline
 					(pts
@@ -1933,6 +1815,15 @@
 					(hide yes)
 				)
 			)
+			(property "LCSC" "C24497"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(symbol "CL31B104KBCNNNC_1_0"
 				(polyline
 					(pts
@@ -2033,7 +1924,7 @@
 					)
 				)
 			)
-			(property "Value" ""
+			(property "Value" "LMV358IDR"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2106,6 +1997,15 @@
 			)
 			(property "LCSC Part Name" "低电压轨到轨输出运算放大器"
 				(at 1.27 1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C63813"
+				(at 0 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2299,7 +2199,7 @@
 					)
 				)
 			)
-			(property "Value" ""
+			(property "Value" "US1MF"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2371,6 +2271,15 @@
 				)
 			)
 			(property "LCSC Part Name" "电压:1kV 电流:1A"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C64877"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2527,6 +2436,15 @@
 				)
 			)
 			(property "LCSC Part Name" "W10M"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C2983251"
 				(at 0 0 0)
 				(effects
 					(font
@@ -4220,6 +4138,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C17984"
+			(at 135.89 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C17984"
+			(at 135.89 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 135.89 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "21d58811-aa39-409f-8c82-d7566487cc21")
 		)
@@ -4467,6 +4410,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C17902"
+			(at 135.89 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C17902"
+			(at 135.89 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 135.89 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "9392bcf0-9501-4010-833a-708de31323d9")
 		)
@@ -4582,6 +4550,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C17902"
+			(at 191.77 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C17902"
+			(at 191.77 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 191.77 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "dea3fe18-a445-4f51-8436-6f5b16d427b6")
 		)
@@ -4616,7 +4609,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "R_100K"
+		(property "Value" "100kΩ"
 			(at 116.84 132.3339 90)
 			(effects
 				(font
@@ -4697,6 +4690,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C118966"
+			(at 119.38 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C118966"
+			(at 119.38 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 119.38 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "df7511e7-f3d7-477a-9297-fa79aabd506f")
 		)
@@ -4733,7 +4751,7 @@
 				)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "Conn_01x02_Pin"
 			(at 55.245 118.11 0)
 			(effects
 				(font
@@ -4775,6 +4793,70 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "LCSC" "-"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLCPCB Part" "-"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier Part" "-"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part Name" "~"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "~"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer Part" "~"
+			(at 54.61 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -4958,6 +5040,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C24497"
+			(at 182.88 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C24497"
+			(at 182.88 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 182.88 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "b09b09d3-9ce8-442b-9195-37449bace8a2")
 		)
@@ -4992,7 +5099,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "US1MF/1N4007"
+		(property "Value" "US1MF"
 			(at 140.97 135.8899 90)
 			(effects
 				(font
@@ -5091,6 +5198,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C64877"
+			(at 138.43 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C64877"
+			(at 138.43 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 138.43 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1ed7e007-10f9-472f-815c-0089d6ee4001")
 		)
@@ -5124,7 +5256,7 @@
 				)
 			)
 		)
-		(property "Value" "BSS138"
+		(property "Value" "BSS138-7-F"
 			(at 198.12 118.11 90)
 			(effects
 				(font
@@ -5202,6 +5334,31 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "LCSC" "C40912"
+			(at 198.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C40912"
+			(at 198.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 198.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -5373,7 +5530,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "Opto Peon"
 			(at 111.76 113.03 0)
 			(effects
 				(font
@@ -5390,7 +5547,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "~"
 			(at 111.76 118.11 0)
 			(effects
 				(font
@@ -5399,13 +5556,85 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "-"
 			(at 111.76 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "LCSC" "-"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "JLCPCB Part" "-"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comentarios" "-"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier" "PEON"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier Part" "-"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part Name" "~"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "~"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer Part" "~"
+			(at 111.76 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "4"
@@ -5579,7 +5808,7 @@
 				)
 			)
 		)
-		(property "Value" "22K (FHV)"
+		(property "Value" "R"
 			(at 81.28 125.73 90)
 			(effects
 				(font
@@ -5623,7 +5852,7 @@
 				(hide yes)
 			)
 		)
-		(property "Part No" "FVR01B"
+		(property "Comentarios" "Datashee con PEON"
 			(at 81.28 129.54 90)
 			(effects
 				(font
@@ -5632,13 +5861,60 @@
 				(hide yes)
 			)
 		)
-		(property "Comentarios" "Datashee con PEON"
-			(at 81.28 129.54 90)
+		(property "LCSC" "-"
+			(at 81.28 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "-"
+			(at 81.28 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 81.28 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 81.28 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier Part" "-"
+			(at 81.28 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part Name" "~"
+			(at 81.28 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer Part" "~"
+			(at 81.28 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -5951,6 +6227,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C2983251"
+			(at 87.63 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C2983251"
+			(at 87.63 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 87.63 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "3"
 			(uuid "6bc7e2ce-8ea5-4974-8489-d400f1e4f274")
 		)
@@ -5990,7 +6291,7 @@
 				)
 			)
 		)
-		(property "Value" "22K (FHV)"
+		(property "Value" "R"
 			(at 69.85 106.68 90)
 			(effects
 				(font
@@ -6034,7 +6335,7 @@
 				(hide yes)
 			)
 		)
-		(property "Part No" "FVR01B"
+		(property "Comentarios" "Datashee con PEON"
 			(at 69.85 110.49 90)
 			(effects
 				(font
@@ -6043,13 +6344,60 @@
 				(hide yes)
 			)
 		)
-		(property "Comentarios" "Datashee con PEON"
-			(at 69.85 110.49 90)
+		(property "LCSC" "-"
+			(at 69.85 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "-"
+			(at 69.85 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 69.85 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 69.85 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier Part" "-"
+			(at 69.85 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part Name" "~"
+			(at 69.85 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer Part" "~"
+			(at 69.85 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -6085,7 +6433,7 @@
 				)
 			)
 		)
-		(property "Value" "22K (FHV)"
+		(property "Value" "R"
 			(at 81.28 106.68 90)
 			(effects
 				(font
@@ -6129,7 +6477,7 @@
 				(hide yes)
 			)
 		)
-		(property "Part No" "FVR01B"
+		(property "Comentarios" "Datashee con PEON"
 			(at 81.28 110.49 90)
 			(effects
 				(font
@@ -6138,13 +6486,60 @@
 				(hide yes)
 			)
 		)
-		(property "Comentarios" "Datashee con PEON"
-			(at 81.28 110.49 90)
+		(property "LCSC" "-"
+			(at 81.28 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "-"
+			(at 81.28 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 81.28 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 81.28 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier Part" "-"
+			(at 81.28 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part Name" "~"
+			(at 81.28 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer Part" "~"
+			(at 81.28 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -6246,7 +6641,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "LMV358"
+		(property "Value" "LMV358IDR"
 			(at 182.4833 118.11 0)
 			(effects
 				(font
@@ -6325,6 +6720,31 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "LCSC" "C63813"
+			(at 163.83 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C63813"
+			(at 163.83 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 163.83 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "3"
@@ -6460,6 +6880,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C17902"
+			(at 204.47 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C17902"
+			(at 204.47 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 204.47 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "05363abd-b78d-4a3b-9bad-5a6582fe3e22")
 		)
@@ -6559,7 +7004,7 @@
 				)
 			)
 		)
-		(property "Value" "22K (FHV)"
+		(property "Value" "R"
 			(at 69.85 125.73 90)
 			(effects
 				(font
@@ -6603,7 +7048,7 @@
 				(hide yes)
 			)
 		)
-		(property "Part No" "FVR01B"
+		(property "Comentarios" "Datashee con PEON"
 			(at 69.85 129.54 90)
 			(effects
 				(font
@@ -6612,13 +7057,60 @@
 				(hide yes)
 			)
 		)
-		(property "Comentarios" "Datashee con PEON"
-			(at 69.85 129.54 90)
+		(property "LCSC" "-"
+			(at 69.85 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "-"
+			(at 69.85 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 69.85 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 69.85 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Supplier Part" "-"
+			(at 69.85 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part Name" "~"
+			(at 69.85 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer Part" "~"
+			(at 69.85 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -6735,6 +7227,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C19290"
+			(at 175.26 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C19290"
+			(at 175.26 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 175.26 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "43bcf290-c5b7-4c10-9123-9069e7ec0c9d")
 		)
@@ -6751,7 +7268,6 @@
 		)
 	)
 	(symbol
-		(lib_name "CC1206KRX7R9BB104_1")
 		(lib_id "easyEDA:CC1206KRX7R9BB104")
 		(at 128.27 140.97 90)
 		(unit 1)
@@ -6770,7 +7286,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100nF"
 			(at 132.08 142.2399 90)
 			(effects
 				(font
@@ -6851,6 +7367,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C82601"
+			(at 128.27 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C82601"
+			(at 128.27 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 128.27 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "7db43c78-2e9f-436a-9209-e333eded34db")
 		)
@@ -6885,7 +7426,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100nF"
 			(at 128.2699 115.57 0)
 			(effects
 				(font
@@ -6966,6 +7507,31 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C82601"
+			(at 127 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C82601"
+			(at 127 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "-"
+			(at 127 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "f4a4b2ff-292a-42dd-8149-164add546611")
 		)
@@ -7000,7 +7566,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2kΩ/2.2K"
+		(property "Value" "2kΩ"
 			(at 135.89 102.87 0)
 			(effects
 				(font
@@ -7079,6 +7645,31 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "LCSC" "C118929"
+			(at 135.89 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB Part" "C118929"
+			(at 135.89 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Comments" "~"
+			(at 135.89 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
