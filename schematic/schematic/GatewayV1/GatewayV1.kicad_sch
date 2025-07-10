@@ -4766,6 +4766,20 @@
 		)
 		(uuid "9f18bfd5-b6ae-4505-8b04-a30ff547d390")
 	)
+	(text "Error de diseño en Fuente de 3.3v\n1) No se esta activando la fuente, de momento se ha \ndesoldado la R que va a tierra para forzar siempre enabled.\n\nErrores en el diseño en ESP, \n1) J1 y J2, no deben ir en el BOM como componentes a soldar.\n2) GPIO15, debe tener una resistencia de 10K a tierra, de lo\ncontrario no funcionará.\n\nPara programar el ESP\n1) Corregir los errores de diseño\n2) Cortocircuitar C1, para que el botón RST funciona si no \ntiene el firmware correcto.\n"
+		(exclude_from_sim no)
+		(at 137.922 217.932 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
+				(color 255 0 9 1)
+			)
+			(justify left)
+		)
+		(uuid "bb252d09-10c8-432a-b619-d59c84545458")
+	)
 	(text "Para evitar glitches \non boot esp"
 		(exclude_from_sim no)
 		(at 128.524 168.148 0)
