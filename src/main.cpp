@@ -25,6 +25,10 @@ unsigned long t0;
 
 
 void setup() {
+
+  pinMode(12, OUTPUT);
+  digitalWrite(12, LOW);
+
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
 
@@ -53,7 +57,10 @@ void setup() {
 
 void loop() {
   // run the framework's loop function
-  esp8266React.loop();
+  //esp8266React.loop();
+  testBoardVoltageElement(Serial);  
+  delay(2000);
+  /*
   analyzer.update();
   if(millis() - t0 > UPDATE_TIME){
       t0 = millis();
@@ -87,7 +94,7 @@ void loop() {
     }else{
       Serial.print("Timeout: "); Serial.println(result.periodMs);
     }
-  }
+  }*/
 }
 
 

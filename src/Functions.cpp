@@ -16,12 +16,26 @@ float getSignalVp(float voltage){
   return voltage*SIGNAL_FACTOR;
 }
 
+float getOwnBatteryVoltage(){
+  return getVoltage(CHANNEL_OWN_BATTERY)*OWN_BATTERY_FACTOR;
+}
+
 float getBatteryVoltage(){
   return getVoltage(CHANNEL_BATTERY)*BATTERY_FACTOR;
 }
 
 float getSolarPannelVoltage(){
   return getVoltage(CHANNEL_PANEL)*SOLAR_FACTOR;
+}
+
+void testBoardVoltageElement(Stream &port){
+  port.print("Battery Voltage: "); 
+  port.print(getBatteryVoltage());
+  port.print("v\tSolar Voltage: "); 
+  port.print(getSolarPannelVoltage());
+  port.print("v\tOwn Battery Voltage: "); 
+  port.print(getOwnBatteryVoltage());
+  port.println("v");
 }
 
 /*
