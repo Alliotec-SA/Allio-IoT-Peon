@@ -176,3 +176,63 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   Serial.println("[🔚 HTTPS session closed]");
 }
 
+void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
+  char command[64];
+  uint8_t data[10];
+  uint16_t value;
+
+  data[0] = 0x00; // Sensor port
+
+  // Bytes 1-2: pulse_time (16 bits)
+  value = (uint16_t)pulse_time;
+  data[1] = (value >> 8) & 0xFF;
+  data[2] = value & 0xFF;
+
+  // Bytes 3-4: pulse_voltage (16 bits)
+  value = (uint16_t)(pulse_voltage * 100); // Mejor precisión si multiplicas por 100
+  data[3] = (value >> 8) & 0xFF;
+  data[4] = value & 0xFF;
+
+  data[5] = (uint8_t)(panel_voltage * 10.0);
+  data[6] = (uint8_t)(battery_voltage * 10.0);
+  data[7] = (uint8_t)(battery_alliotec * 10.0);
+
+  uint16_t crc = calcCRC(data, 8);
+  data[8] = (crc >> 8) & 0xFF;
+  data[9] = crc & 0xFF;
+
+
+  buildLoRaCommand(data, sizeof(data), command, sizeof(command));
+  Serial.print(command);
+
+}
+
+uint16_t calcCRC(const uint8_t *buf, uint8_t len) {
+  uint16_t crc = 0xFFFF;
+
+  for (uint8_t pos = 0; pos < len; pos++) {
+    crc ^= buf[pos];
+
+    for (uint8_t i = 0; i < 8; i++) {
+      if (crc & 0x0001) {
+        crc >>= 1;
+        crc ^= 0xA001;
+      } else {
+        crc >>= 1;
+      }
+    }
+  }
+
+  return crc;
+}
+
+void buildLoRaCommand(const uint8_t* data, size_t len, char* outBuffer, size_t outSize) {
+  size_t pos = snprintf(outBuffer, outSize, "AT+SEND=1:");
+
+  for (size_t i = 0; i < len && pos < outSize - 3; i++) {
+    pos += snprintf(outBuffer + pos, outSize - pos, "%02X", data[i]);
+  }
+
+  // Agregar terminación \r\n si hay espacio
+  snprintf(outBuffer + pos, outSize - pos, "\r\n");
+}

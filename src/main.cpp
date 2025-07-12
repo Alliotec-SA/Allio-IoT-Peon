@@ -26,8 +26,9 @@ unsigned long t0;
 
 void setup() {
 
-  pinMode(12, OUTPUT);
-  digitalWrite(12, LOW);
+  pinMode(PIN_DRST, OUTPUT);
+  digitalWrite(PIN_DRST, LOW);
+  pinMode(PIN_WKP, WAKEUP_PULLUP);
 
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
@@ -57,10 +58,10 @@ void setup() {
 
 void loop() {
   // run the framework's loop function
-  //esp8266React.loop();
-  testBoardVoltageElement(Serial);  
-  delay(2000);
-  /*
+  esp8266React.loop();
+  //testBoardVoltageElement(Serial);  
+  //delay(2000);
+  
   analyzer.update();
   if(millis() - t0 > UPDATE_TIME){
       t0 = millis();
@@ -73,6 +74,7 @@ void loop() {
     lastResult.batteryVoltage = getBatteryVoltage();
     lastResult.batteryPercent = ((int)lastResult.batteryVoltage/12)*100;
     lastResult.solarVoltage = getSolarPannelVoltage();
+    lastResult.battery = getOwnBatteryVoltage();
     lastResult.ready = result.ready;
     lastResult.timeout = result.timeout;
     lastResult.lastChecked = millis();
@@ -90,11 +92,14 @@ void loop() {
       Serial.print("Vp: "); Serial.println(lastResult.signalVoltage);
       Serial.print("Baterry: "); Serial.println(lastResult.batteryVoltage, 4);
       Serial.print("Pannel: ");  Serial.println(lastResult.solarVoltage, 4);
-      sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, 0);
+      sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
     }else{
       Serial.print("Timeout: "); Serial.println(result.periodMs);
     }
-  }*/
+
+    //ESP.deepSleep(30e6, WAKE_RF_DISABLED);
+    //ESP.deepSleep();  // 30e6 = 30,000,000 us = 30 seconds
+  }
 }
 
 
