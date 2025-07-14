@@ -5,8 +5,8 @@
 #include <FSPersistence.h>
 #include <SettingValue.h>
 
-#define DEVICE_SETTINGS_FILE "/config/deviceLoraWanSettings.json"
-#define DEVICE_SETTINGS_PATH "/rest/deviceLoraWanSettings"
+#define DEVICE_LORAWAN_SETTINGS_FILE "/config/deviceLoraWanSettings.json"
+#define DEVICE_LORAWAN_SETTINGS_PATH "/rest/deviceLoraWanSettings"
 
 class DeviceLoRaWanSettings {
  public:
@@ -33,8 +33,8 @@ class DeviceLoRaWanSettings {
   static StateUpdateResult update(JsonObject& root, DeviceLoRaWanSettings& settings) {
     settings.devEUI = root["dev_eui"] | SettingValue::format("");
     settings.appEUI = root["app_eui"] | SettingValue::format("");
-    settings.appKey = root["app_key"] | SettingValue::format("apismartweather.alliotec.com");
-    settings.netKey = root["net_key"] | SettingValue::format("/api/v2/peon");
+    settings.appKey = root["app_key"] | SettingValue::format("");
+    settings.netKey = root["net_key"] | SettingValue::format("");
     settings.devAddress = root["dev_address"] | SettingValue::format("") ;
     settings.appsKey = root["apps_key"]  | SettingValue::format("") ;
     settings.netsKey = root["nets_key"]  | SettingValue::format("");
@@ -43,9 +43,9 @@ class DeviceLoRaWanSettings {
   }
 };
 
-class DeviceSettingsService : public StatefulService<DeviceLoRaWanSettings> {
+class DeviceLoRaWanSettingsService : public StatefulService<DeviceLoRaWanSettings> {
  public:
-  DeviceSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
+  DeviceLoRaWanSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
   String getDevEUI();
   String getAppEUI();
   String getAppKey();

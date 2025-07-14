@@ -10,7 +10,7 @@ import { useRest, updateValue } from "../utils";
 
 import * as DemoApi from './api';
 import { DeviceLoRaWanSettings } from "./types";
-import { DEVICE_SETTINGS_VALIDATOR } from "./validators";
+import { DEVICE_LORAWAN_SETTINGS_VALIDATOR } from "./validators";
 
 const DeviceLoRaWanSettingsForm: FC = () => {
   const [fieldErrors, setFieldErrors] = useState<ValidateFieldsError>();
@@ -28,7 +28,7 @@ const DeviceLoRaWanSettingsForm: FC = () => {
     const validateAndSubmit = async () => {
       try {
         setFieldErrors(undefined);
-        await validate(DEVICE_SETTINGS_VALIDATOR, data);
+        await validate(DEVICE_LORAWAN_SETTINGS_VALIDATOR, data);
         saveData();
       } catch (errors: any) {
         setFieldErrors(errors);

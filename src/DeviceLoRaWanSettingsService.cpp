@@ -1,17 +1,17 @@
 #include <DeviceLoRaWanSettingsService.h>
 
-DeviceSettingsService::DeviceSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager) :
+DeviceLoRaWanSettingsService::DeviceLoRaWanSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager) :
     _httpEndpoint(DeviceLoRaWanSettings::read,
                   DeviceLoRaWanSettings::update,
                   this,
                   server,
-                  DEVICE_SETTINGS_PATH,
+                  DEVICE_LORAWAN_SETTINGS_PATH,
                   securityManager,
                   AuthenticationPredicates::IS_AUTHENTICATED),
-    _fsPersistence(DeviceLoRaWanSettings::read, DeviceLoRaWanSettings::update, this, fs, DEVICE_SETTINGS_FILE) {
+    _fsPersistence(DeviceLoRaWanSettings::read, DeviceLoRaWanSettings::update, this, fs, DEVICE_LORAWAN_SETTINGS_FILE) {
 }
 
-bool DeviceSettingsService::shouldUseOtaa() {
+bool DeviceLoRaWanSettingsService::shouldUseOtaa() {
   bool value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.use_otaa;
@@ -19,7 +19,7 @@ bool DeviceSettingsService::shouldUseOtaa() {
   return value;
 }
 
-String DeviceSettingsService::getDevEUI() {
+String DeviceLoRaWanSettingsService::getDevEUI() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.devEUI;
@@ -27,7 +27,7 @@ String DeviceSettingsService::getDevEUI() {
   return value;
 }
 
-String DeviceSettingsService::getAppEUI() {
+String DeviceLoRaWanSettingsService::getAppEUI() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.appEUI;
@@ -35,7 +35,7 @@ String DeviceSettingsService::getAppEUI() {
   return value;
 }
 
-String DeviceSettingsService::getAppKey() {
+String DeviceLoRaWanSettingsService::getAppKey() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.appKey;
@@ -43,7 +43,7 @@ String DeviceSettingsService::getAppKey() {
   return value;
 }
 
-String DeviceSettingsService::getNetKey() {
+String DeviceLoRaWanSettingsService::getNetKey() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.netKey;
@@ -51,7 +51,7 @@ String DeviceSettingsService::getNetKey() {
   return value;
 }
 
-String DeviceSettingsService::getDevAddress() {
+String DeviceLoRaWanSettingsService::getDevAddress() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.devAddress;
@@ -59,7 +59,7 @@ String DeviceSettingsService::getDevAddress() {
   return value;
 }
 
-String DeviceSettingsService::getAppsKey() {
+String DeviceLoRaWanSettingsService::getAppsKey() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.appsKey;
@@ -67,7 +67,7 @@ String DeviceSettingsService::getAppsKey() {
   return value;
 }
 
-String DeviceSettingsService::getNetsKey() {
+String DeviceLoRaWanSettingsService::getNetsKey() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {
     value = settings.netsKey;
@@ -75,6 +75,6 @@ String DeviceSettingsService::getNetsKey() {
   return value;
 }
 
-void DeviceSettingsService::begin() {
+void DeviceLoRaWanSettingsService::begin() {
   _fsPersistence.readFromFS();
 }
