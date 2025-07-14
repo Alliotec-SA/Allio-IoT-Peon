@@ -9,6 +9,7 @@ import { RouterTabs, useRouterTab, useLayoutTitle } from '../components';
 import DemoInformation from './DemoInformation';
 //import LightStateRestForm from './LightStateRestForm';
 import DeviceSettingsForm from './DeviceSettingsForm';
+import DeviceLoRaWanSettingsForm from './DeviceLoRaWanSettingsForm';
 //import LightStateWebSocketForm from './LightStateWebSocketForm';
 
 const DemoProject: FC = () => {
@@ -18,13 +19,15 @@ const DemoProject: FC = () => {
   return (
     <>
       <RouterTabs value={routerTab}>
-          <Tab value="information" label="Device Information" />
+          {/*<Tab value="information" label="Device Information" />*/}
           <Tab value="deviceSettings" label="Device Settings" />
+          <Tab value="deviceLoRaWanSettings" label="LoRaWan Settings" />
         </RouterTabs>
         <Routes>
-          <Route path="information" element={<DemoInformation />} />
+          {/*<Route path="information" element={<DemoInformation />} /> */}
           <Route path="deviceSettings" element={<DeviceSettingsForm />} />
-          <Route path="/*" element={<Navigate replace to="information" />} />
+          <Route path="deviceLoRaWanSettings" element={<DeviceLoRaWanSettingsForm />} />
+          <Route path="/*" element={<Navigate replace to="deviceSettings" />} />
         </Routes>
       {/* FROM ORIGINAL FRAMEWORK
       <RouterTabs value={routerTab}>
