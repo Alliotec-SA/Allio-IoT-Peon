@@ -1,7 +1,7 @@
+#include "Settings.h"
 #include <ESP8266React.h>
 #include <Adafruit_ADS1X15.h>
 #include "Functions.h"
-#include "Settings.h"
 #include <DeviceSettingsService.h>
 #include <DeviceStateService.h>
 #include <DeviceLoRaWanSettingsService.h>
@@ -23,7 +23,9 @@ Adafruit_ADS1115 ads;
 CycleAnalyzer analyzer(PIN_SIGNAL, CHANNEL_SIGNAL, SIGNAL_TIMEOUT, ads);
 LastResult lastResult;
 
-unsigned long t0;
+unsigned long t0 = 0;
+bool hasGotValue = false; 
+uint8_t readingTries = 0;
 
 
 void setup() {
@@ -34,9 +36,11 @@ void setup() {
 
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
+  SerialDebug.begin(SERIAL_BAUD_RATE);
 
   // start the framework and demo project
   esp8266React.begin();
+  
 
   // load the initial light settings
   //lightStateService.begin();
@@ -50,29 +54,28 @@ void setup() {
   server.begin();
 
   delay(2000);
-  Serial.println(deviceSettingsService.getServer());
-  Serial.println(deviceSettingsService.getPath());
-  Serial.println(deviceSettingsService.getToken());
-  Serial.println(deviceSettingsService.getDevEUI());
+  SerialDebug.println(deviceSettingsService.getServer());
+  SerialDebug.println(deviceSettingsService.getPath());
+  SerialDebug.println(deviceSettingsService.getToken());
+  SerialDebug.println(deviceSettingsService.getDevEUI());
+
   ads.begin();
   analyzer.begin();
-  t0 = millis()-(UPDATE_TIME-60000);
+  t0 = millis();
+
 }
 
 void loop() {
-  // run the framework's loop function
   esp8266React.loop();
-  //testBoardVoltageElement(Serial);  
-  //delay(2000);
-  
   analyzer.update();
-  if(millis() - t0 > UPDATE_TIME){
-      t0 = millis();
+
+  if(analyzer.isReady() && readingTries < READING_TRIES){
       analyzer.start();
-      Serial.print("Start analyzing: ");
-      //sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), 12, 12/12, 7, getSignalVp(3.2),3900, 0);
+      SerialDebug.print("Start analyzing: ");
   }
+
   if (analyzer.isReady()) {
+    readingTries++;
     auto result = analyzer.getResult();
     lastResult.batteryVoltage = getBatteryVoltage();
     lastResult.batteryPercent = ((int)lastResult.batteryVoltage/12)*100;
@@ -89,19 +92,32 @@ void loop() {
       lastResult.signalVoltage = (int) getSignalVp(result.vMax);
 
 
-      Serial.print("Periodo: "); Serial.println(lastResult.signalPeriod);
-      Serial.print("Vmin: "); Serial.println(result.vMin, 3);
-      Serial.print("Vmax: "); Serial.println(result.vMax, 3);
-      Serial.print("Vp: "); Serial.println(lastResult.signalVoltage);
-      Serial.print("Baterry: "); Serial.println(lastResult.batteryVoltage, 4);
-      Serial.print("Pannel: ");  Serial.println(lastResult.solarVoltage, 4);
-      sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
+      SerialDebug.print("Periodo: "); SerialDebug.println(lastResult.signalPeriod);
+      SerialDebug.print("Vmin: "); SerialDebug.println(result.vMin, 3);
+      SerialDebug.print("Vmax: "); SerialDebug.println(result.vMax, 3);
+      SerialDebug.print("Vp: "); SerialDebug.println(lastResult.signalVoltage);
+      SerialDebug.print("Baterry: "); SerialDebug.println(lastResult.batteryVoltage, 4);
+      SerialDebug.print("Pannel: ");  SerialDebug.println(lastResult.solarVoltage, 4);
+      if(deviceSettingsService.isEnabled() && WiFi.isConnected()){
+        sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
+      }
+
+      if(deviceLoRaWanSettingsService.isEnabled()){
+        sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
+      }
+      
     }else{
-      Serial.print("Timeout: "); Serial.println(result.periodMs);
+      SerialDebug.print("Timeout: "); SerialDebug.println(result.periodMs);
     }
 
-    //ESP.deepSleep(30e6, WAKE_RF_DISABLED);
-    //ESP.deepSleep();  // 30e6 = 30,000,000 us = 30 seconds
+    if(!hasClientConnected && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
+
+      //ESP.deepSleep((INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES*60*1000-(millis()-t0))*1000, WAKE_RF_DISABLED);
+      //ESP.deepSleep();  // 30e6 = 30,000,000 us = 30 seconds
+    }
+
+
+    
   }
 }
 

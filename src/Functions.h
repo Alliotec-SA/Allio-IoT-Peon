@@ -1,6 +1,5 @@
 #ifndef Fuctions_H
 #define Fuctions_H
-#include <Arduino.h>
 #include "Settings.h"
 
 float getVoltage(uint8_t channel);
@@ -10,6 +9,7 @@ float getSignalVp(float voltage);
 float getOwnBatteryVoltage();
 float getBatteryVoltage();
 float getSolarPannelVoltage();
+bool hasClientConnected();
 void testBoardVoltageElement(Stream &port);
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec);
 uint16_t calcCRC(const uint8_t *buf, uint8_t len);

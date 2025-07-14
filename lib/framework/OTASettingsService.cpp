@@ -34,27 +34,27 @@ void OTASettingsService::configureArduinoOTA() {
     _arduinoOTA = nullptr;
   }
   if (_state.enabled) {
-    Serial.println(F("Starting OTA Update Service..."));
+    SerialDebug.println(F("Starting OTA Update Service..."));
     _arduinoOTA = new ArduinoOTAClass;
     _arduinoOTA->setPort(_state.port);
     _arduinoOTA->setPassword(_state.password.c_str());
-    _arduinoOTA->onStart([]() { Serial.println(F("Starting")); });
-    _arduinoOTA->onEnd([]() { Serial.println(F("\r\nEnd")); });
+    _arduinoOTA->onStart([]() { SerialDebug.println(F("Starting")); });
+    _arduinoOTA->onEnd([]() { SerialDebug.println(F("\r\nEnd")); });
     _arduinoOTA->onProgress([](unsigned int progress, unsigned int total) {
-      Serial.printf_P(PSTR("Progress: %u%%\r\n"), (progress / (total / 100)));
+      SerialDebug.printf_P(PSTR("Progress: %u%%\r\n"), (progress / (total / 100)));
     });
     _arduinoOTA->onError([](ota_error_t error) {
-      Serial.printf("Error[%u]: ", error);
+      SerialDebug.printf("Error[%u]: ", error);
       if (error == OTA_AUTH_ERROR)
-        Serial.println(F("Auth Failed"));
+        SerialDebug.println(F("Auth Failed"));
       else if (error == OTA_BEGIN_ERROR)
-        Serial.println(F("Begin Failed"));
+        SerialDebug.println(F("Begin Failed"));
       else if (error == OTA_CONNECT_ERROR)
-        Serial.println(F("Connect Failed"));
+        SerialDebug.println(F("Connect Failed"));
       else if (error == OTA_RECEIVE_ERROR)
-        Serial.println(F("Receive Failed"));
+        SerialDebug.println(F("Receive Failed"));
       else if (error == OTA_END_ERROR)
-        Serial.println(F("End Failed"));
+        SerialDebug.println(F("End Failed"));
     });
     _arduinoOTA->begin();
   }

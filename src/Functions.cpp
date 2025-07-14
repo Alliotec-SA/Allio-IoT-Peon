@@ -1,7 +1,7 @@
 #include <Functions.h>
+#include "Settings.h"
 #include <ESP8266React.h>
 #include <Adafruit_ADS1X15.h>
-#include "Settings.h"
 #include <WiFiClientSecureBearSSL.h>
 #include <ESP8266HTTPClient.h>
 
@@ -28,6 +28,10 @@ float getSolarPannelVoltage(){
   return getVoltage(CHANNEL_PANEL)*SOLAR_FACTOR;
 }
 
+bool hasClientConnected(){
+  return WiFi.softAPgetStationNum() > 0;
+}
+
 void testBoardVoltageElement(Stream &port){
   port.print("Battery Voltage: "); 
   port.print(getBatteryVoltage());
@@ -44,29 +48,29 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   client.setInsecure();
   client.setSNIHostname(host.c_str());
 
-  Serial.println("[🔌 Intentando conexión]");
-  Serial.print("Host: ");
-  Serial.println(host);
-  Serial.print("Puerto: 443\n");
-  Serial.print("Path: ");
-  Serial.println(path);
+  SerialDebug.println("[🔌 Intentando conexión]");
+  SerialDebug.print("Host: ");
+  SerialDebug.println(host);
+  SerialDebug.print("Puerto: 443\n");
+  SerialDebug.print("Path: ");
+  SerialDebug.println(path);
 
  if (!client.connect(host.c_str(), 443)) {
-    Serial.println("❌ ERROR: No se pudo conectar al servidor HTTPS.");
-    Serial.println("Posibles causas:");
-    Serial.println("- ❗ Nombre del host mal escrito o incorrecto");
-    Serial.println("- ❗ El servidor está fuera de línea o no responde por el puerto 443");
-    Serial.println("- ❗ Problemas de DNS o red WiFi inestable");
-    Serial.println("- ❗ El certificado SSL no es válido (aunque usamos setInsecure)");
+    SerialDebug.println("❌ ERROR: No se pudo conectar al servidor HTTPS.");
+    SerialDebug.println("Posibles causas:");
+    SerialDebug.println("- ❗ Nombre del host mal escrito o incorrecto");
+    SerialDebug.println("- ❗ El servidor está fuera de línea o no responde por el puerto 443");
+    SerialDebug.println("- ❗ Problemas de DNS o red WiFi inestable");
+    SerialDebug.println("- ❗ El certificado SSL no es válido (aunque usamos setInsecure)");
 
     // Diagnóstico adicional: verificar IP
     IPAddress ip;
     if (WiFi.hostByName(host.c_str(), ip)) {
-        Serial.print("🧭 Dirección IP resuelta: ");
-        Serial.println(ip);
-        Serial.println("➡️  El problema NO es DNS.");
+        SerialDebug.print("🧭 Dirección IP resuelta: ");
+        SerialDebug.println(ip);
+        SerialDebug.println("➡️  El problema NO es DNS.");
     } else {
-        Serial.println("❌ ERROR: No se pudo resolver el host DNS.");
+        SerialDebug.println("❌ ERROR: No se pudo resolver el host DNS.");
     }
 
     return;
@@ -93,13 +97,13 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   client.println();  // Fin de headers
   client.print(json);  // Cuerpo
 
-  Serial.println("Respuesta:");
+  SerialDebug.println("Respuesta:");
   while (client.connected()) {
     String line = client.readStringUntil('\n');
     if (line == "\r") break; // fin de headers
   }
   while (client.available()) {
-    Serial.println(client.readStringUntil('\n'));
+    SerialDebug.println(client.readStringUntil('\n'));
   }
 
   client.stop();
@@ -108,13 +112,13 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
 void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec) {
   const int httpsPort = 443;
 
-  Serial.println("\n[🔌 Attempting connection...]");
-  Serial.print("[ℹ️] Host: "); Serial.println(host);
-  Serial.print("[ℹ️] Port: "); Serial.println(httpsPort);
-  Serial.print("[ℹ️] Path: "); Serial.println(path);
+  SerialDebug.println("\n[🔌 Attempting connection...]");
+  SerialDebug.print("[ℹ️] Host: "); SerialDebug.println(host);
+  SerialDebug.print("[ℹ️] Port: "); SerialDebug.println(httpsPort);
+  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path);
 
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("❌ ERROR: Not connected to WiFi.");
+    SerialDebug.println("❌ ERROR: Not connected to WiFi.");
     return;
   }
 
@@ -137,20 +141,20 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   HTTPClient https;
   String url = "https://" + host + path;
 
-  Serial.print("[📡 Connecting to HTTPS URL] ");
-  Serial.println(url);
+  SerialDebug.print("[📡 Connecting to HTTPS URL] ");
+  SerialDebug.println(url);
 
   if (!https.begin(*client, url)) {
-    Serial.println("❌ ERROR: HTTPS connection failed (begin).");
+    SerialDebug.println("❌ ERROR: HTTPS connection failed (begin).");
 
     // Additional IP resolution diagnostics
     IPAddress ip;
     if (WiFi.hostByName(host.c_str(), ip)) {
-      Serial.print("🧭 DNS resolved IP: ");
-      Serial.println(ip);
-      Serial.println("➡️  DNS resolution is OK.");
+      SerialDebug.print("🧭 DNS resolved IP: ");
+      SerialDebug.println(ip);
+      SerialDebug.println("➡️  DNS resolution is OK.");
     } else {
-      Serial.println("❌ ERROR: Failed to resolve DNS.");
+      SerialDebug.println("❌ ERROR: Failed to resolve DNS.");
     }
 
     return;
@@ -160,20 +164,20 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   https.addHeader("Content-Type", "application/json");
   https.addHeader("Authorization", "Bearer " + token);
 
-  Serial.println("[📤 Sending POST request]");
+  SerialDebug.println("[📤 Sending POST request]");
   int httpCode = https.POST(json);
 
   if (httpCode > 0) {
-    Serial.printf("[✅ HTTP Response Code]: %d\n", httpCode);
+    SerialDebug.printf("[✅ HTTP Response Code]: %d\n", httpCode);
     String payload = https.getString();
-    Serial.println("[📨 Server Response]:");
-    Serial.println(payload);
+    SerialDebug.println("[📨 Server Response]:");
+    SerialDebug.println(payload);
   } else {
-    Serial.printf("❌ HTTP POST failed. code: %d  Error: %s\n",httpCode, https.errorToString(httpCode).c_str());
+    SerialDebug.printf("❌ HTTP POST failed. code: %d  Error: %s\n",httpCode, https.errorToString(httpCode).c_str());
   }
 
   https.end();
-  Serial.println("[🔚 HTTPS session closed]");
+  SerialDebug.println("[🔚 HTTPS session closed]");
 }
 
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
@@ -203,7 +207,7 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
 
 
   buildLoRaCommand(data, sizeof(data), command, sizeof(command));
-  Serial.print(command);
+  SerialDebug.print(command);
 
 }
 

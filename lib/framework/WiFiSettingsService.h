@@ -87,9 +87,10 @@ class WiFiSettings {
 class WiFiSettingsService : public StatefulService<WiFiSettings> {
  public:
   WiFiSettingsService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
-
+  
   void begin();
   void loop();
+  void stopStation();
 
  private:
   HttpEndpoint<WiFiSettings> _httpEndpoint;
