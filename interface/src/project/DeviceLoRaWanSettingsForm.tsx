@@ -45,6 +45,17 @@ const DeviceLoRaWanSettingsForm: FC = () => {
         <BlockFormControlLabel
           control={
             <Checkbox
+              name="enabled"
+              checked={data.enabled}
+              onChange={updateFormValue}
+            />
+          }
+          label={data.enabled ? "Uncheck to disable":"Check to enable"}
+        />
+        {data.enabled ? <>
+          <BlockFormControlLabel
+          control={
+            <Checkbox
               name="use_otaa"
               checked={data.use_otaa}
               onChange={updateFormValue}
@@ -123,6 +134,8 @@ const DeviceLoRaWanSettingsForm: FC = () => {
           margin="normal"
         />
         </>}
+        </> : <></>}
+        
         
         
         <ButtonRow mt={1}>

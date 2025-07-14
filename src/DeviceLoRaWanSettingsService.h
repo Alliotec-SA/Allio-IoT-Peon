@@ -18,6 +18,7 @@ class DeviceLoRaWanSettings {
   String appsKey;
   String netsKey;
   bool use_otaa;
+  bool enabled;
 
   static void read(DeviceLoRaWanSettings& settings, JsonObject& root) {
     root["dev_eui"] = settings.devEUI;
@@ -28,6 +29,7 @@ class DeviceLoRaWanSettings {
     root["apps_key"] = settings.appsKey;
     root["nets_key"] = settings.netsKey;
     root["use_otaa"] = settings.use_otaa;
+    root["enabled"] = settings.enabled;
   }
 
   static StateUpdateResult update(JsonObject& root, DeviceLoRaWanSettings& settings) {
@@ -39,6 +41,7 @@ class DeviceLoRaWanSettings {
     settings.appsKey = root["apps_key"]  | SettingValue::format("") ;
     settings.netsKey = root["nets_key"]  | SettingValue::format("");
     settings.use_otaa = root["use_otaa"] | false;
+    settings.enabled = root["enabled"] | true;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -54,6 +57,7 @@ class DeviceLoRaWanSettingsService : public StatefulService<DeviceLoRaWanSetting
   String getAppsKey();
   String getNetsKey();
   bool shouldUseOtaa();
+  bool isEnabled();
   void begin();
 
  private:

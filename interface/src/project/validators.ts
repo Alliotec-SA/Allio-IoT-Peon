@@ -12,6 +12,9 @@ export const DEVICE_SETTINGS_VALIDATOR = new Schema({
     },
     path: {
         required: true, message: "Please provide a server path"
+    },
+    enabled: {
+        required: false, message: "Please provide to enabled Wifi Transmission"
     }
 });
 
@@ -39,6 +42,9 @@ export const DEVICE_LORAWAN_SETTINGS_VALIDATOR = new Schema({
     },
     use_otaa: {
         required: false, message: "Please Define if use OTAA or ABP"
+    },
+    enabled: {
+        required: false, message: "Please Define if transmit by LoRaWan"
     }
 });
 

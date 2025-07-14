@@ -11,6 +11,14 @@ DeviceSettingsService::DeviceSettingsService(AsyncWebServer* server, FS* fs, Sec
     _fsPersistence(DeviceSettings::read, DeviceSettings::update, this, fs, DEVICE_SETTINGS_FILE) {
 }
 
+bool DeviceSettingsService::isEnabled() {
+  bool value;
+  read([&](DeviceSettings& settings) {
+    value = settings.enabled;
+  });
+  return value;
+}
+
 String DeviceSettingsService::getToken() {
   String value;
   read([&](DeviceSettings& settings) {

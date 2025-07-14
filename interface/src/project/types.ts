@@ -3,6 +3,7 @@ export interface DeviceSettings {
   token: string;
   server: string;
   path: string;
+  enabled: boolean;
 }
 
 export interface DeviceLoRaWanSettings {
@@ -14,6 +15,7 @@ export interface DeviceLoRaWanSettings {
   dev_address: string;
   nets_key: string;
   apps_key: string;
+  enabled: boolean;
 }
 
 export interface LightState {

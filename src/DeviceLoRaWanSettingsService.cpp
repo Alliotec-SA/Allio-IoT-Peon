@@ -19,6 +19,14 @@ bool DeviceLoRaWanSettingsService::shouldUseOtaa() {
   return value;
 }
 
+bool DeviceLoRaWanSettingsService::isEnabled() {
+  bool value;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.enabled;
+  });
+  return value;
+}
+
 String DeviceLoRaWanSettingsService::getDevEUI() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {

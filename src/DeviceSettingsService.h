@@ -14,12 +14,14 @@ class DeviceSettings {
   String token;
   String server;
   String path;
+  bool enabled;
 
   static void read(DeviceSettings& settings, JsonObject& root) {
     root["dev_eui"] = settings.devEUI;
     root["token"] = settings.token;
     root["server"] = settings.server;
     root["path"] = settings.path;
+    root["enabled"] = settings.enabled;
   }
 
   static StateUpdateResult update(JsonObject& root, DeviceSettings& settings) {
@@ -27,6 +29,7 @@ class DeviceSettings {
     settings.token = root["token"] | SettingValue::format("");
     settings.server = root["server"] | SettingValue::format("apismartweather.alliotec.com");
     settings.path = root["path"] | SettingValue::format("/api/v2/peon");
+    settings.enabled = root["enabled"] | false;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -38,6 +41,7 @@ class DeviceSettingsService : public StatefulService<DeviceSettings> {
   String getDevEUI();
   String getServer();
   String getPath();
+  bool isEnabled();
   void begin();
 
  private:

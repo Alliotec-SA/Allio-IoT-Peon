@@ -1,10 +1,10 @@
 import { FC, useState } from "react";
 import { ValidateFieldsError } from "async-validator";
 
-import { Button } from "@mui/material";
+import { Checkbox, Button } from "@mui/material";
 import SaveIcon from '@mui/icons-material/Save';
 
-import { ButtonRow, FormLoader, MessageBox, SectionContent, ValidatedTextField } from "../components";
+import { BlockFormControlLabel, ButtonRow, FormLoader, MessageBox, SectionContent, ValidatedTextField } from "../components";
 import { validate } from "../validators";
 import { useRest, updateValue } from "../utils";
 
@@ -42,7 +42,18 @@ const DeviceSettingsForm: FC = () => {
           message="Get device connection information from PEON or Alliotec"
           my={2}
         />
-        <ValidatedTextField
+        <BlockFormControlLabel
+          control={
+            <Checkbox
+              name="enabled"
+              checked={data.enabled}
+              onChange={updateFormValue}
+            />
+          }
+          label={data.enabled ? "Uncheck to disable":"Check to enable"}
+        />
+        {data.enabled ? <>
+            <ValidatedTextField
           fieldErrors={fieldErrors}
           name="dev_eui"
           label="EUI"
@@ -82,6 +93,8 @@ const DeviceSettingsForm: FC = () => {
           onChange={updateFormValue}
           margin="normal"
         />
+        </> : <></>}
+        
         <ButtonRow mt={1}>
           <Button startIcon={<SaveIcon />} disabled={saving} variant="contained" color="primary" type="submit" onClick={validateAndSubmit}>
             Save
