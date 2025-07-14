@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include <DeviceSettingsService.h>
 #include <DeviceStateService.h>
+#include <DeviceLoRaWanSettingsService.h>
 #include "CycleAnalyzer.h"
 
 
@@ -16,6 +17,7 @@ DeviceSettingsService deviceSettingsService =
     DeviceSettingsService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
 DeviceStateService deviceStateService =
     DeviceStateService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
+DeviceLoRaWanSettingsService deviceLoRaWanSettingsService = DeviceLoRaWanSettingsService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
 
 Adafruit_ADS1115 ads;
 CycleAnalyzer analyzer(PIN_SIGNAL, CHANNEL_SIGNAL, SIGNAL_TIMEOUT, ads);
@@ -41,6 +43,7 @@ void setup() {
 
   // start the device settings service
   deviceSettingsService.begin();
+  deviceLoRaWanSettingsService.begin();
   deviceStateService.begin();
 
   // start the server
