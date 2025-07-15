@@ -211,9 +211,24 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   data[9] = crc & 0xFF;
 
 
-  buildLoRaCommand(data, sizeof(data), command, sizeof(command));
+   char hexPayload[21]; // 10 bytes * 2 hex chars + null terminator
+  bytesToHexString(data, sizeof(data), hexPayload, sizeof(hexPayload));
+  if(!lorawan.isJoined()){
+      lorawan.join();
+  }
+  lorawan.send(12, hexPayload, false);
   SerialDebug.print(command);
 
+}
+
+void bytesToHexString(const uint8_t* data, size_t len, char* outHex, size_t outLen) {
+  const char hexDigits[] = "0123456789ABCDEF";
+  if (outLen < (len * 2 + 1)) return; // no hay espacio suficiente
+  for (size_t i = 0; i < len; i++) {
+    outHex[2*i]     = hexDigits[(data[i] >> 4) & 0x0F];
+    outHex[2*i + 1] = hexDigits[data[i] & 0x0F];
+  }
+  outHex[len * 2] = '\0';
 }
 
 uint16_t calcCRC(const uint8_t *buf, uint8_t len) {
@@ -235,13 +250,3 @@ uint16_t calcCRC(const uint8_t *buf, uint8_t len) {
   return crc;
 }
 
-void buildLoRaCommand(const uint8_t* data, size_t len, char* outBuffer, size_t outSize) {
-  size_t pos = snprintf(outBuffer, outSize, "AT+SEND=1:");
-
-  for (size_t i = 0; i < len && pos < outSize - 3; i++) {
-    pos += snprintf(outBuffer + pos, outSize - pos, "%02X", data[i]);
-  }
-
-  // Agregar terminación \r\n si hay espacio
-  snprintf(outBuffer + pos, outSize - pos, "\r\n");
-}

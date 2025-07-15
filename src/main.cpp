@@ -6,6 +6,7 @@
 #include <DeviceStateService.h>
 #include <DeviceLoRaWanSettingsService.h>
 #include "CycleAnalyzer.h"
+#include "LoraWan.h"
 
 
 
@@ -33,7 +34,7 @@ struct RTCData {
 };
 
 RTCData rtcData;
-
+LoraWan lorawan(Serial);
 
 void setup() {
   //Wake Up Settings
