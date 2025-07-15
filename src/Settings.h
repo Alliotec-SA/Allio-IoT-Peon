@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#define LORAWAN_RESPONSE_BUFFER 128
 #define RTC_ADDR 65  // safe address range is 64–127
 #define READING_TRIES 3
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 20 
