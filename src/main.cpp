@@ -28,15 +28,39 @@ bool hasGotValue = false;
 uint8_t readingTries = 0;
 
 
-void setup() {
+struct RTCData {
+  uint8_t wakeup_cycle;  // 0 or 1
+};
 
+RTCData rtcData;
+
+
+void setup() {
+  //Wake Up Settings
   pinMode(PIN_DRST, OUTPUT);
   digitalWrite(PIN_DRST, LOW);
   pinMode(PIN_WKP, WAKEUP_PULLUP);
 
+  system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
+  // Default to 0 if uninitialized
+  if (rtcData.wakeup_cycle != 0 && rtcData.wakeup_cycle != 1) {
+    rtcData.wakeup_cycle = 0;
+  }
+
+  if(rtcData.wakeup_cycle == 1){
+    rtcData.wakeup_cycle = 0;
+    system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
+    goToSleep(millis());
+  }else{
+    rtcData.wakeup_cycle = 1;
+    system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
+  }
+
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
   SerialDebug.begin(SERIAL_BAUD_RATE);
+  
+  SerialDebug.println("Working wakeup");
 
   // start the framework and demo project
   esp8266React.begin();
@@ -53,11 +77,6 @@ void setup() {
   // start the server
   server.begin();
 
-  delay(2000);
-  SerialDebug.println(deviceSettingsService.getServer());
-  SerialDebug.println(deviceSettingsService.getPath());
-  SerialDebug.println(deviceSettingsService.getToken());
-  SerialDebug.println(deviceSettingsService.getDevEUI());
 
   ads.begin();
   analyzer.begin();
@@ -69,7 +88,7 @@ void loop() {
   esp8266React.loop();
   analyzer.update();
 
-  if(analyzer.isReady() && readingTries < READING_TRIES){
+  if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
       analyzer.start();
       SerialDebug.print("Start analyzing: ");
   }
@@ -86,18 +105,25 @@ void loop() {
     lastResult.lastChecked = millis();
     deviceStateService.updateLastValue(lastResult);
     
-    if(!result.timeout) 
-    {
-      lastResult.signalPeriod = result.periodMs;
-      lastResult.signalVoltage = (int) getSignalVp(result.vMax);
+
+    if(result.timeout){
+      SerialDebug.print("Timeout: "); SerialDebug.println(result.periodMs);
+    }else{
+      hasGotValue = true;
+    }
+      
+    lastResult.signalPeriod = !result.timeout ? result.periodMs : 0;
+    lastResult.signalVoltage = (int) getSignalVp(result.vMax);
 
 
-      SerialDebug.print("Periodo: "); SerialDebug.println(lastResult.signalPeriod);
-      SerialDebug.print("Vmin: "); SerialDebug.println(result.vMin, 3);
-      SerialDebug.print("Vmax: "); SerialDebug.println(result.vMax, 3);
-      SerialDebug.print("Vp: "); SerialDebug.println(lastResult.signalVoltage);
-      SerialDebug.print("Baterry: "); SerialDebug.println(lastResult.batteryVoltage, 4);
-      SerialDebug.print("Pannel: ");  SerialDebug.println(lastResult.solarVoltage, 4);
+    SerialDebug.print("Periodo: "); SerialDebug.println(lastResult.signalPeriod);
+    SerialDebug.print("Vmin: "); SerialDebug.println(result.vMin, 3);
+    SerialDebug.print("Vmax: "); SerialDebug.println(result.vMax, 3);
+    SerialDebug.print("Vp: "); SerialDebug.println(lastResult.signalVoltage);
+    SerialDebug.print("Baterry: "); SerialDebug.println(lastResult.batteryVoltage, 4);
+    SerialDebug.print("Pannel: ");  SerialDebug.println(lastResult.solarVoltage, 4);
+
+    if(hasGotValue || readingTries > READING_TRIES){
       if(deviceSettingsService.isEnabled() && WiFi.isConnected()){
         sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
       }
@@ -105,19 +131,11 @@ void loop() {
       if(deviceLoRaWanSettingsService.isEnabled()){
         sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
       }
-      
-    }else{
-      SerialDebug.print("Timeout: "); SerialDebug.println(result.periodMs);
     }
+  }
 
-    if(!hasClientConnected && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
-
-      //ESP.deepSleep((INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES*60*1000-(millis()-t0))*1000, WAKE_RF_DISABLED);
-      //ESP.deepSleep();  // 30e6 = 30,000,000 us = 30 seconds
-    }
-
-
-    
+  if(analyzer.isReady() && !hasClientConnected && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
+        goToSleep(t0);
   }
 }
 

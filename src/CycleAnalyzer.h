@@ -22,6 +22,7 @@ public:
   void start();
   void update();
   bool isReady() const;
+  bool isAnalyzerRunning();
   Result getResult();
 
 private:

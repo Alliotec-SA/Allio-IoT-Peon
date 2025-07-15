@@ -32,6 +32,11 @@ bool hasClientConnected(){
   return WiFi.softAPgetStationNum() > 0;
 }
 
+void goToSleep(unsigned long t0){
+  ESP.deepSleep((INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES*60*1000-(millis()-t0))*1000, WAKE_RF_DISABLED);
+      //ESP.deepSleep();  // 30e6 = 30,000,000 us = 30 seconds
+}
+
 void testBoardVoltageElement(Stream &port){
   port.print("Battery Voltage: "); 
   port.print(getBatteryVoltage());

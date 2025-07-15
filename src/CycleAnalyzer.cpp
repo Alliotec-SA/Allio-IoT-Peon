@@ -64,6 +64,10 @@ bool CycleAnalyzer::isReady() const {
   return result.ready;
 }
 
+bool CycleAnalyzer::isAnalyzerRunning() {
+  return isRunning;
+}
+
 CycleAnalyzer::Result CycleAnalyzer::getResult() {
   result.ready = false;
   return result;

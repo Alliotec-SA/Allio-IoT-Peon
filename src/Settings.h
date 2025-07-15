@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#define RTC_ADDR 65  // safe address range is 64–127
 #define READING_TRIES 3
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 20 
 #define UPDATE_TIME_IN_HOURS 1
@@ -21,6 +22,8 @@
 #define BATTERY_FACTOR 11.11 //(1)/(10/110)
 #define SOLAR_FACTOR 11.11 //(1)/(10/110)
 #define UPDATE_TIME 60000
+
+
 
 #include <Arduino.h>
 
