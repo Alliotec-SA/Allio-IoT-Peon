@@ -135,7 +135,7 @@ void loop() {
     }
   }
 
-  if(analyzer.isReady() && !hasClientConnected && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
+  if(analyzer.isReady() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
         goToSleep(t0);
   }
 }
