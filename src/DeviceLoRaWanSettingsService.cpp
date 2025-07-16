@@ -27,6 +27,16 @@ bool DeviceLoRaWanSettingsService::isEnabled() {
   return value;
 }
 
+bool DeviceLoRaWanSettingsService::hasNewData() {
+  bool value;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.isNewData;
+    settings.isNewData = false;
+  });
+  
+  return value;
+}
+
 String DeviceLoRaWanSettingsService::getDevEUI() {
   String value;
   read([&](DeviceLoRaWanSettings& settings) {

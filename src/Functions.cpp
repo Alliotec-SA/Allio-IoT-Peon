@@ -32,14 +32,74 @@ bool hasClientConnected(){
   return WiFi.softAPgetStationNum() > 0;
 }
 
+void resetWifiSettings() {
+  esp8266React.getWiFiSettingsService()->update([](WiFiSettings& s) {
+    s.ssid = "";
+    s.password = "";
+    return StateUpdateResult::CHANGED;
+  }, "reset");
+}
+
 void goToSleep(unsigned long t0){
-  SerialDebug.println("Going to sleep");
-  lorawan.sleep(0);
+  SerialDebug.println("Preparing to sleep");
+
+  lorawan.sleep(0);         // Dormir módulo externo
+  delay(100);               // Dejar que termine comunicación serial
+  
+  SerialDebug.println("Call elapsed time");
+  unsigned long elapsed = millis() - t0;
+  unsigned long targetMs = INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES * 60UL * 1000UL;
+  unsigned long sleepMs;
+
+  if (elapsed >= targetMs) {
+    sleepMs = 60UL * 1000UL;
+    Serial.println("Time exceeded, using 1-minute fallback.");
+  } else {
+    sleepMs = targetMs - elapsed;
+  }
+
+  SerialDebug.print("Sleep ms: ");
+  SerialDebug.println(sleepMs);
+
+  uint64_t sleepUs = (uint64_t)sleepMs * 1000ULL;
+
+  // Validar valor antes de usarlo
+  if (sleepUs == 0 || sleepUs > 4294967295ULL) {
+    SerialDebug.println("Invalid sleepUs, forcing fallback.");
+    sleepUs = 60ULL * 1000ULL * 1000ULL; // 1 minuto
+  }
+
+  SerialDebug.print("Sleep us: ");
+  SerialDebug.println((uint32_t)sleepUs);
+
+  SerialDebug.println("Going to sleep...");
+  SerialDebug.println("Stop everything");
+
+  delay(200);
+
+  // Before deep sleep , stop evertiting:
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
   SerialDebug.flush();
   Serial.flush();
-  ESP.deepSleep((INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES*60*1000-(millis()-t0))*1000, WAKE_RF_DISABLED);
-      //ESP.deepSleep();  // 30e6 = 30,000,000 us = 30 seconds
+  delay(50);
+
+  ESP.deepSleep((uint32_t)sleepUs, WAKE_RF_DEFAULT); // o WAKE_RF_DISABLED
 }
+
+void setupLoRaWan(){
+  lorawan.setJoinMode(deviceLoRaWanSettingsService.shouldUseOtaa());
+
+  if(deviceLoRaWanSettingsService.shouldUseOtaa()){
+    lorawan.setDevEUI(deviceLoRaWanSettingsService.getDevEUI().c_str());
+    lorawan.setAppEUI(deviceLoRaWanSettingsService.getAppEUI().c_str());
+    lorawan.setAppKey(deviceLoRaWanSettingsService.getAppKey().c_str());
+  }else{
+    lorawan.setDevAddr(deviceLoRaWanSettingsService.getDevAddress().c_str());
+    lorawan.setAppSKey(deviceLoRaWanSettingsService.getAppsKey().c_str());
+    lorawan.setNwkSKey(deviceLoRaWanSettingsService.getNetsKey().c_str());
+  }
+};
 
 void testBoardVoltageElement(Stream &port){
   port.print("Battery Voltage: "); 

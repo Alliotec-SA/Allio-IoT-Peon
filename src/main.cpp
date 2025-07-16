@@ -27,6 +27,10 @@ LastResult lastResult;
 unsigned long t0 = 0;
 bool hasGotValue = false; 
 uint8_t readingTries = 0;
+bool loraSent = false;
+bool jsonSent = false;
+unsigned long wifiWaitStart = 0;
+bool waitingForWiFi = false;
 
 
 struct RTCData {
@@ -41,8 +45,9 @@ void setup() {
   pinMode(PIN_DRST, OUTPUT);
   digitalWrite(PIN_DRST, LOW);
   pinMode(PIN_WKP, WAKEUP_PULLUP);
+  
 
-  /*system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
+  system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
   // Default to 0 if uninitialized
   if (rtcData.wakeup_cycle != 0 && rtcData.wakeup_cycle != 1) {
     rtcData.wakeup_cycle = 0;
@@ -56,7 +61,7 @@ void setup() {
   }else{
     rtcData.wakeup_cycle = 1;
     system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
-  }*/
+  }
 
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
@@ -74,20 +79,30 @@ void setup() {
   // start the device settings service
   deviceSettingsService.begin();
   deviceLoRaWanSettingsService.begin();
+  deviceLoRaWanSettingsService.hasNewData(); // to avoid first glitch
   deviceStateService.begin();
 
   // start the server
   server.begin();
 
+  delay(200);
+
 
   ads.begin();
   analyzer.begin();
   t0 = millis();
-
+  hasGotValue = false; 
+  readingTries = 0;
+  loraSent = false;
+  jsonSent = false;
 }
 
 void loop() {
   esp8266React.loop();
+  if(deviceLoRaWanSettingsService.hasNewData()){
+    SerialDebug.println("Starting setup lora device");
+    setupLoRaWan();
+  }
   analyzer.update();
 
   
@@ -110,6 +125,12 @@ void loop() {
     }else{
       hasGotValue = true;
     }
+
+    if(readingTries >= READING_TRIES){
+      hasGotValue = true;
+      SerialDebug.println("Max reading attempts reached.");
+    }
+      
       
     lastResult.signalPeriod = !result.timeout ? result.periodMs : 0;
     lastResult.signalVoltage = (int) getSignalVp(result.vMax);
@@ -123,22 +144,23 @@ void loop() {
     SerialDebug.print("Pannel: ");  SerialDebug.println(lastResult.solarVoltage, 4);
     SerialDebug.flush();
 
-    if(hasGotValue || readingTries > READING_TRIES){
-      if(deviceSettingsService.isEnabled() && WiFi.isConnected()){
-        sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
-      }
+  }
 
-      if(deviceLoRaWanSettingsService.isEnabled()){
-        sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
-      }
-    }
+  if(hasGotValue && !loraSent && deviceLoRaWanSettingsService.isEnabled()){
+    sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
+    loraSent = true;
+  }
+
+  if(hasGotValue && !jsonSent && deviceSettingsService.isEnabled() && WiFi.isConnected()){
+    sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
+    jsonSent = true;
   }
 
   
 
-  /*if(!analyzer.isAnalyzerRunning() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
+  if(!analyzer.isAnalyzerRunning() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
         goToSleep(t0);
-  }*/
+  }
 
   //This condition should go to end, so make sure if ready condition can be evaluated
   if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
@@ -147,6 +169,7 @@ void loop() {
       SerialDebug.println(readingTries);
       SerialDebug.flush();
   }
+
 }
 
 

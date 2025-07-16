@@ -44,7 +44,7 @@ bool LoraWan::getResponse(const char *cmd, char *response, size_t maxLen, uint16
 }
 
 // Sleep y bajo consumo
-bool LoraWan::sleep(uint32_t ms) {
+bool LoraWan::sleep(unsigned long ms) {
   char cmd[32];
   snprintf(cmd, sizeof(cmd), "AT+SLEEP=%lu", ms);
   return sendCommand(cmd);
@@ -129,11 +129,11 @@ bool LoraWan::isJoined() {
 
 // Envío y recepción
 bool LoraWan::send(uint8_t port, const char *hexPayload, bool confirmed) {
-  char cmd[8];
+  char cmd[16];
   snprintf(cmd, sizeof(cmd), "AT+CFM=%d", confirmed ? 1 : 0);
-  if (!sendCommand(cmd)) return false;
+  //if (!sendCommand(cmd)) return false;
 
-  char sendCmd[128];
+  char sendCmd[256];
   snprintf(sendCmd, sizeof(sendCmd), "AT+SEND=%d:%s", port, hexPayload);
   return sendCommand(sendCmd, "+EVT:SEND CONFIRMED OK", 5000);
 }
