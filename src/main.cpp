@@ -95,6 +95,7 @@ void setup() {
   readingTries = 0;
   loraSent = false;
   jsonSent = false;
+  lorawan.setLowPowerMode(false);
 }
 
 void loop() {
@@ -147,11 +148,13 @@ void loop() {
   }
 
   if(hasGotValue && !loraSent && deviceLoRaWanSettingsService.isEnabled()){
+    SerialDebug.println("Sending By LoRa");
     sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
     loraSent = true;
   }
 
   if(hasGotValue && !jsonSent && deviceSettingsService.isEnabled() && WiFi.isConnected()){
+    SerialDebug.println("Sending By Wifi");
     sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
     jsonSent = true;
   }

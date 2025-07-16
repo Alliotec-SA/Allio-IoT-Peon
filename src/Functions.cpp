@@ -43,7 +43,7 @@ void resetWifiSettings() {
 void goToSleep(unsigned long t0){
   SerialDebug.println("Preparing to sleep");
 
-  lorawan.sleep(0);         // Dormir módulo externo
+  lorawan.setLowPowerMode(true); // Dormir módulo externo       
   delay(100);               // Dejar que termine comunicación serial
   
   SerialDebug.println("Call elapsed time");
@@ -262,7 +262,7 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   data[2] = value & 0xFF;
 
   // Bytes 3-4: pulse_voltage (16 bits)
-  value = (uint16_t)(pulse_voltage * 100); // Mejor precisión si multiplicas por 100
+  value = (uint16_t)(pulse_voltage); // Mejor precisión si multiplicas por 100
   data[3] = (value >> 8) & 0xFF;
   data[4] = value & 0xFF;
 
@@ -271,8 +271,9 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   data[7] = (uint8_t)(battery_alliotec * 10.0);
 
   uint16_t crc = calcCRC(data, 8);
-  data[8] = (crc >> 8) & 0xFF;
-  data[9] = crc & 0xFF;
+  data[8] = crc & 0xFF;
+  data[9] = (crc >> 8) & 0xFF;
+  
 
 
    char hexPayload[21]; // 10 bytes * 2 hex chars + null terminator
