@@ -90,7 +90,6 @@ class WiFiSettingsService : public StatefulService<WiFiSettings> {
   
   void begin();
   void loop();
-  void stopStation();
 
  private:
   HttpEndpoint<WiFiSettings> _httpEndpoint;

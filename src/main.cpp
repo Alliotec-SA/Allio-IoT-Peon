@@ -42,7 +42,7 @@ void setup() {
   digitalWrite(PIN_DRST, LOW);
   pinMode(PIN_WKP, WAKEUP_PULLUP);
 
-  system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
+  /*system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
   // Default to 0 if uninitialized
   if (rtcData.wakeup_cycle != 0 && rtcData.wakeup_cycle != 1) {
     rtcData.wakeup_cycle = 0;
@@ -51,11 +51,12 @@ void setup() {
   if(rtcData.wakeup_cycle == 1){
     rtcData.wakeup_cycle = 0;
     system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
+    SerialDebug.println("This is not the cycle");
     goToSleep(millis());
   }else{
     rtcData.wakeup_cycle = 1;
     system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
-  }
+  }*/
 
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
@@ -89,12 +90,9 @@ void loop() {
   esp8266React.loop();
   analyzer.update();
 
-  if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
-      analyzer.start();
-      SerialDebug.print("Start analyzing: ");
-  }
-
+  
   if (analyzer.isReady()) {
+    SerialDebug.println("Anlyzer is Ready ");
     readingTries++;
     auto result = analyzer.getResult();
     lastResult.batteryVoltage = getBatteryVoltage();
@@ -108,7 +106,7 @@ void loop() {
     
 
     if(result.timeout){
-      SerialDebug.print("Timeout: "); SerialDebug.println(result.periodMs);
+      SerialDebug.println("Timeout: "); SerialDebug.println(result.periodMs);
     }else{
       hasGotValue = true;
     }
@@ -123,6 +121,7 @@ void loop() {
     SerialDebug.print("Vp: "); SerialDebug.println(lastResult.signalVoltage);
     SerialDebug.print("Baterry: "); SerialDebug.println(lastResult.batteryVoltage, 4);
     SerialDebug.print("Pannel: ");  SerialDebug.println(lastResult.solarVoltage, 4);
+    SerialDebug.flush();
 
     if(hasGotValue || readingTries > READING_TRIES){
       if(deviceSettingsService.isEnabled() && WiFi.isConnected()){
@@ -135,8 +134,18 @@ void loop() {
     }
   }
 
-  if(analyzer.isReady() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
+  
+
+  /*if(!analyzer.isAnalyzerRunning() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
         goToSleep(t0);
+  }*/
+
+  //This condition should go to end, so make sure if ready condition can be evaluated
+  if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
+      analyzer.start();
+      SerialDebug.print("Start analyzing: ");
+      SerialDebug.println(readingTries);
+      SerialDebug.flush();
   }
 }
 
