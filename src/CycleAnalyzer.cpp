@@ -22,6 +22,7 @@ void CycleAnalyzer::update() {
 
   unsigned long now = millis();
   int currentSignal = digitalRead(signalPin);
+  readAdcValue();
 
   bool fallingEdge = detectEdge(prevSignalState, currentSignal, HIGH, LOW, now, fallingDebounceStart);
   bool risingEdge  = detectEdge(prevSignalState, currentSignal, LOW, HIGH, now, risingDebounceStart);
@@ -45,19 +46,20 @@ void CycleAnalyzer::update() {
       }
       break;
 
-    case WAITING_SECOND_FALLING: {
-      int16_t val = ads.readADC_SingleEnded(channel);
-      if (val < minVal) minVal = val;
-      if (val > maxVal) maxVal = val;
-
+    case WAITING_SECOND_FALLING: 
       if (fallingEdge) {
         finalize(now - t0, false);
       } else if ((now - t0) > timeout) {
         finalize(0, true);
       }
       break;
-    }
   }
+}
+
+void CycleAnalyzer::readAdcValue() {
+  int16_t val = ads.readADC_SingleEnded(channel);
+  if (val < minVal) minVal = val;
+  if (val > maxVal) maxVal = val;
 }
 
 bool CycleAnalyzer::isReady() const {

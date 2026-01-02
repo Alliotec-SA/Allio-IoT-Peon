@@ -53,6 +53,7 @@ private:
 
   void reset();
   void finalize(unsigned long period, bool isTimeout);
+  void readAdcValue();
   void changeStateToWaitingFirstFalling();
   void changeStateToWaitingRising();
   void changeStateToWaitingSecondFalling();
