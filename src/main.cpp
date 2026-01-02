@@ -89,6 +89,9 @@ void setup() {
 
 
   ads.begin();
+  ads.setDataRate(RATE_ADS1115_475SPS);
+  Wire.setClock(400000);
+  
   analyzer.begin();
   t0 = millis();
   hasGotValue = false; 
