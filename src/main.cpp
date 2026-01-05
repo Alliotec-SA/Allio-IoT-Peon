@@ -45,6 +45,8 @@ void setup() {
   pinMode(PIN_DRST, OUTPUT);
   digitalWrite(PIN_DRST, LOW);
   pinMode(PIN_WKP, WAKEUP_PULLUP);
+  pinMode(PIN_TURN_ON_OFF_ELECTRIFIER, OUTPUT);
+  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
   
 
   system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
@@ -90,7 +92,7 @@ void setup() {
 
   ads.begin();
   ads.setDataRate(RATE_ADS1115_475SPS);
-  Wire.setClock(400000);
+  Wire.setClock(100000);
   
   analyzer.begin();
   t0 = millis();

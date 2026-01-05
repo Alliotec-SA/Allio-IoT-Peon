@@ -32,6 +32,14 @@ bool hasClientConnected(){
   return WiFi.softAPgetStationNum() > 0;
 }
 
+void turnOffElectrifier(){
+  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW); // Turn off
+}
+
+void turnOnElectrifier(){
+  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
+}
+
 void resetWifiSettings() {
   esp8266React.getWiFiSettingsService()->update([](WiFiSettings& s) {
     s.ssid = "";
