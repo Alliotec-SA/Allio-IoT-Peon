@@ -12,7 +12,7 @@ import DeviceSettingsForm from './DeviceSettingsForm';
 import DeviceLoRaWanSettingsForm from './DeviceLoRaWanSettingsForm';
 //import LightStateWebSocketForm from './LightStateWebSocketForm';
 
-const DemoProject: FC = () => {
+const DeviceCommunicationSettings: FC = () => {
   useLayoutTitle("Device Settings");
   const { routerTab } = useRouterTab();
 
@@ -20,14 +20,14 @@ const DemoProject: FC = () => {
     <>
       <RouterTabs value={routerTab}>
           {/*<Tab value="information" label="Device Information" />*/}
-          <Tab value="deviceSettings" label="Device Settings" />
+          <Tab value="deviceWifiSettings" label="Wifi Settings" />
           <Tab value="deviceLoRaWanSettings" label="LoRaWan Settings" />
         </RouterTabs>
         <Routes>
           {/*<Route path="information" element={<DemoInformation />} /> */}
-          <Route path="deviceSettings" element={<DeviceSettingsForm />} />
+          <Route path="deviceWifiSettings" element={<DeviceSettingsForm />} />
           <Route path="deviceLoRaWanSettings" element={<DeviceLoRaWanSettingsForm />} />
-          <Route path="/*" element={<Navigate replace to="deviceSettings" />} />
+          <Route path="/*" element={<Navigate replace to="deviceWifiSettings" />} />
         </Routes>
       {/* FROM ORIGINAL FRAMEWORK
       <RouterTabs value={routerTab}>
@@ -47,4 +47,4 @@ const DemoProject: FC = () => {
   );
 };
 
-export default DemoProject;
+export default DeviceCommunicationSettings;
