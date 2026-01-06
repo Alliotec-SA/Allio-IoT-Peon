@@ -46,6 +46,14 @@ boolean DeviceStateService::startAnalyzingProcess() {
   return value;
 }
 
+boolean DeviceStateService::isUltraEnergySavingMode(){
+  boolean value;
+  read([&](DeviceState& settings) {
+    value = settings.isUltraEnergySavingMode;
+  });
+  return value;
+} 
+
 
 void DeviceStateService::begin() {
   //_fsPersistence.readFromFS();

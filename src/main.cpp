@@ -25,6 +25,7 @@ CycleAnalyzer analyzer(PIN_SIGNAL, CHANNEL_SIGNAL, SIGNAL_TIMEOUT, ads);
 LastResult lastResult;
 
 unsigned long t0 = 0;
+unsigned long tlastAnalyzerRun = 0;
 bool hasGotValue = false; 
 uint8_t readingTries = 0;
 bool loraSent = false;
@@ -32,6 +33,8 @@ bool jsonSent = false;
 unsigned long wifiWaitStart = 0;
 bool waitingForWiFi = false;
 boolean isElectrifierTurnedOn = false;
+unsigned long runAnalyzerIntervalMs = UPDATE_TIME_IN_HOURS * 3600000;
+
 
 
 struct RTCData {
@@ -101,6 +104,7 @@ void setup() {
   
   analyzer.begin();
   t0 = millis();
+  tlastAnalyzerRun = t0;
   hasGotValue = false; 
   readingTries = 0;
   loraSent = false;
@@ -125,6 +129,14 @@ void loop() {
   if(!analyzer.isAnalyzerRunning() && deviceStateService.startAnalyzingProcess()){
     SerialDebug.println("Start Analyzer from Device State Service");
     analyzer.start();
+  }
+
+  if(!deviceStateService.isUltraEnergySavingMode()){
+    if(!analyzer.isAnalyzerRunning() && (millis() - tlastAnalyzerRun) >= runAnalyzerIntervalMs){
+      analyzer.start();
+      tlastAnalyzerRun = millis();
+      SerialDebug.println("Start analyzing due to interval");
+    }
   }
   
   if (analyzer.isReady()) {
@@ -181,7 +193,7 @@ void loop() {
 
   
 
-  if(!analyzer.isAnalyzerRunning() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
+  if(deviceStateService.isUltraEnergySavingMode() && !analyzer.isAnalyzerRunning() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
         goToSleep(t0);
   }
 

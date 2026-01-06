@@ -15,6 +15,7 @@ class DeviceState {
   boolean isRunningAnalyzingProcess = false;
   boolean startAnalyzingProcess = false;
   boolean isTurnedOn = true;
+  boolean isUltraEnergySavingMode = false;
 
   static void read(DeviceState& settings, JsonObject& root) {
     root["signal_voltage"] = String(settings.lastResult.signalVoltage);
@@ -27,6 +28,7 @@ class DeviceState {
     root["last_checked"] = String(settings.lastResult.lastChecked);
     root["is_running_analyzing_process"] = settings.isRunningAnalyzingProcess;
     root["is_turned_on"] = settings.isTurnedOn;
+    root["is_ultra_energy_saving_mode"] = settings.isUltraEnergySavingMode;
   }
 
 
@@ -36,6 +38,7 @@ class DeviceState {
         settings.isRunningAnalyzingProcess = true;
     }
     settings.isTurnedOn = root["is_turned_on"] | settings.isTurnedOn;
+    settings.isUltraEnergySavingMode = root["is_ultra_energy_saving_mode"] | settings.isUltraEnergySavingMode;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -48,6 +51,7 @@ class DeviceStateService : public StatefulService<DeviceState> {
   void updateElectrifierState(boolean value);
   boolean isElectrifierTurnedOn();
   boolean startAnalyzingProcess();
+  boolean isUltraEnergySavingMode();
   void begin();
 
  private:
