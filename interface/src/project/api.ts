@@ -42,3 +42,4 @@ export function readDeviceInfo(): AxiosPromise<DeviceInformation> {
 export function updateDeviceInfo(deviceInfo: DeviceInformation): AxiosPromise<DeviceInformation> {
   return AXIOS.post('/deviceState', deviceInfo);
 }
+

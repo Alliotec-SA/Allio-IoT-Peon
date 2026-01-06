@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from "react";
 import { ValidateFieldsError } from "async-validator";
 
 import { Checkbox, Button } from "@mui/material";
-import { PlayCircle, BrowserUpdated } from "@mui/icons-material";
+import { PlayCircle, BrowserUpdated, StopCircle } from "@mui/icons-material";
 
 import { LoadingSpinner } from "../components";
 
@@ -52,10 +52,9 @@ const MainTab: FC = () => {
 
   
 
-    const validateAndSubmit = async () => {
+    const validateAndSubmit = async (deviceValues:DeviceInformation) => {
       try {
-        await saveData();
-        setIsRunningAnalyzingProcess(true);
+        DemoApi.updateDeviceInfo(deviceValues);
         await loadData();
       } catch (errors: any) {
         setFieldErrors(errors);
@@ -95,7 +94,7 @@ const MainTab: FC = () => {
           label="Peak Period Interval (s)"
           fullWidth
           variant="outlined"
-          value={(parseInt(data.signa_period)/1000).toFixed(2)}
+          value={(data.signa_period ? (parseInt(data.signa_period)/1000).toFixed(2) : "")}
           InputProps={{
             readOnly: true
           }}
@@ -142,11 +141,14 @@ const MainTab: FC = () => {
 
         
         <ButtonRow mt={1}>
-          <Button startIcon={<PlayCircle />} disabled={saving} variant="contained" color="primary" type="submit" onClick={validateAndSubmit}>
+          <Button startIcon={ <PlayCircle />} disabled={saving} variant="contained" color="primary" type="submit" onClick={()=>{validateAndSubmit({is_running_analyzing_process:true})}}>
             Start Analysis 
           </Button>
           <Button startIcon={<BrowserUpdated />} disabled={saving} variant="contained" color="primary" type="submit" onClick={()=> loadData()}>
             Reload 
+          </Button>
+          <Button startIcon={data.is_turned_on ? <StopCircle /> : <PlayCircle />} disabled={saving} variant="contained" color={data.is_turned_on ? "error" : "success"} type="submit" onClick={()=>{validateAndSubmit({is_turned_on:!data.is_turned_on})}}>
+            Turn {data.is_turned_on ? "Off" : "On"}
           </Button>
         </ButtonRow>
       </>
