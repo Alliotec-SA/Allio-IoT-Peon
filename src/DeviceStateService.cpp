@@ -17,6 +17,21 @@ void DeviceStateService::updateLastValue(LastResult value){
   });
 }
 
+void DeviceStateService::updateIsRunningAnalyzingProcess(boolean value){
+  read([&](DeviceState& settings) {
+    settings.isRunningAnalyzingProcess = value;
+  });
+} 
+
+boolean DeviceStateService::startAnalyzingProcess() {
+  boolean value;
+  read([&](DeviceState& settings) {
+    value = settings.startAnalyzingProcess;
+    settings.startAnalyzingProcess = false;
+  });
+  return value;
+}
+
 
 void DeviceStateService::begin() {
   //_fsPersistence.readFromFS();

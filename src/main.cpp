@@ -110,7 +110,12 @@ void loop() {
     setupLoRaWan();
   }
   analyzer.update();
+  deviceStateService.updateIsRunningAnalyzingProcess(analyzer.isAnalyzerRunning());
 
+  if(!analyzer.isAnalyzerRunning() && deviceStateService.startAnalyzingProcess()){
+    SerialDebug.println("Start Analyzer from Device State Service");
+    analyzer.start();
+  }
   
   if (analyzer.isReady()) {
     SerialDebug.println("Anlyzer is Ready ");
@@ -138,8 +143,8 @@ void loop() {
     }
       
       
-    lastResult.signalPeriod = !result.timeout ? result.periodMs : 0;
-    lastResult.signalVoltage = (int) getSignalVp(result.vMax);
+    lastResult.signalPeriod = !result.timeout ? result.periodMs : -1;
+    lastResult.signalVoltage = !result.timeout ? (int) getSignalVp(result.vMax) : -1;
 
 
     SerialDebug.print("Periodo: "); SerialDebug.println(lastResult.signalPeriod);

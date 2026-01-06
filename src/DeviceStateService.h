@@ -12,6 +12,8 @@
 class DeviceState {
  public:
   LastResult lastResult;
+  boolean isRunningAnalyzingProcess = false;
+  boolean startAnalyzingProcess = false;
   static void read(DeviceState& settings, JsonObject& root) {
     root["signal_voltage"] = String(settings.lastResult.signalVoltage);
     root["signa_period"] = String(settings.lastResult.signalPeriod);
@@ -21,10 +23,13 @@ class DeviceState {
     root["battery"] = String(settings.lastResult.battery);
     root["timeout"] = String(settings.lastResult.timeout);
     root["last_checked"] = String(settings.lastResult.lastChecked);
+    root["is_running_analyzing_process"] = settings.isRunningAnalyzingProcess;
   }
 
 
   static StateUpdateResult update(JsonObject& root, DeviceState& settings) {
+    settings.startAnalyzingProcess = true;
+    settings.isRunningAnalyzingProcess = true;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -33,6 +38,8 @@ class DeviceStateService : public StatefulService<DeviceState> {
  public:
   DeviceStateService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
   void updateLastValue(LastResult value);
+  void updateIsRunningAnalyzingProcess(boolean value);
+  boolean startAnalyzingProcess();
   void begin();
 
  private:

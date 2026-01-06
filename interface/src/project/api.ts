@@ -1,7 +1,7 @@
 import { AxiosPromise } from "axios";
 
 import { AXIOS } from "../api/endpoints";
-import { LightMqttSettings, LightState, DeviceSettings, DeviceLoRaWanSettings } from "./types";
+import { LightMqttSettings, LightState, DeviceSettings, DeviceLoRaWanSettings, DeviceInformation } from "./types";
 
 export function readLightState(): AxiosPromise<LightState> {
   return AXIOS.get('/lightState');
@@ -33,4 +33,12 @@ export function readDeviceLoRaWanSettings(): AxiosPromise<DeviceLoRaWanSettings>
 
 export function updateDeviceLoRaWanSettings(lightMqttSettings: DeviceLoRaWanSettings): AxiosPromise<DeviceLoRaWanSettings> {
   return AXIOS.post('/deviceLoraWanSettings', lightMqttSettings);
+}
+
+export function readDeviceInfo(): AxiosPromise<DeviceInformation> {
+  return AXIOS.get('/deviceState');
+}
+
+export function updateDeviceInfo(deviceInfo: DeviceInformation): AxiosPromise<DeviceInformation> {
+  return AXIOS.post('/deviceState', deviceInfo);
 }
