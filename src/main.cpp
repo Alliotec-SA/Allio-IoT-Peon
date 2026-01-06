@@ -50,25 +50,9 @@ void setup() {
   digitalWrite(PIN_DRST, LOW);
   pinMode(PIN_WKP, WAKEUP_PULLUP);
   pinMode(PIN_TURN_ON_OFF_ELECTRIFIER, OUTPUT);
+  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW);
    
 
-  
-
-  system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
-  // Default to 0 if uninitialized
-  if (rtcData.wakeup_cycle != 0 && rtcData.wakeup_cycle != 1) {
-    rtcData.wakeup_cycle = 0;
-  }
-
-  if(rtcData.wakeup_cycle == 1){
-    rtcData.wakeup_cycle = 0;
-    system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
-    SerialDebug.println("This is not the cycle");
-    goToSleep(millis());
-  }else{
-    rtcData.wakeup_cycle = 1;
-    system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
-  }
 
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
@@ -88,6 +72,26 @@ void setup() {
   deviceLoRaWanSettingsService.begin();
   deviceLoRaWanSettingsService.hasNewData(); // to avoid first glitch
   deviceStateService.begin();
+
+  // Set base for ultra energy saving mode
+  
+  system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
+  // Default to 0 if uninitialized
+  if (rtcData.wakeup_cycle != 0 && rtcData.wakeup_cycle != 1) {
+    rtcData.wakeup_cycle = 0;
+  }
+
+  if(rtcData.wakeup_cycle == 1){
+    rtcData.wakeup_cycle = 0;
+    system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
+    SerialDebug.println("This is not the cycle");
+    if(deviceStateService.isUltraEnergySavingMode())
+      goToSleep(millis());
+  }else{
+    rtcData.wakeup_cycle = 1;
+    system_rtc_mem_write(RTC_ADDR, &rtcData, sizeof(rtcData));
+  }
+  //end base ultra energy saving mode
 
   // Explicitly cast the function pointer to resolve overload ambiguity
   turnOnElectrifier(deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
@@ -165,8 +169,8 @@ void loop() {
     }
       
       
-    lastResult.signalPeriod = !result.timeout ? result.periodMs : -1;
-    lastResult.signalVoltage = !result.timeout ? (int) getSignalVp(result.vMax) : -1;
+    lastResult.signalPeriod = !result.timeout ? result.periodMs : 0;
+    lastResult.signalVoltage = !result.timeout ? (int) getSignalVp(result.vMax) : 0;
 
 
     SerialDebug.print("Periodo: "); SerialDebug.println(lastResult.signalPeriod);
@@ -192,7 +196,6 @@ void loop() {
   }
 
   
-
   if(deviceStateService.isUltraEnergySavingMode() && !analyzer.isAnalyzerRunning() && !hasClientConnected() && millis()-t0 > MAX_TIME_TO_START_SETUP_IN_SECONDS*1000){
         goToSleep(t0);
   }

@@ -19,7 +19,7 @@ class DeviceState {
 
   static void read(DeviceState& settings, JsonObject& root) {
     root["signal_voltage"] = String(settings.lastResult.signalVoltage);
-    root["signa_period"] = String(settings.lastResult.signalPeriod);
+    root["signal_period"] = String(settings.lastResult.signalPeriod);
     root["battery_voltage"] = String(settings.lastResult.batteryVoltage);
     root["battery_percent"] = String(settings.lastResult.batteryPercent);
     root["solar_voltage"] = String(settings.lastResult.solarVoltage);

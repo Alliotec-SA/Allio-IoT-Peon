@@ -7,12 +7,10 @@ import { PlayCircle, BrowserUpdated, StopCircle } from "@mui/icons-material";
 import { LoadingSpinner } from "../components";
 
 import { BlockFormControlLabel, ButtonRow, FormLoader, MessageBox, SectionContent, ValidatedTextField } from "../components";
-import { validate } from "../validators";
 import { useRest, updateValue } from "../utils";
 
 import * as DemoApi from './api';
 import { DeviceInformation } from "./types";
-import { DEVICE_SETTINGS_VALIDATOR } from "./validators";
 
 const MainTab: FC = () => {
   const [fieldErrors, setFieldErrors] = useState<ValidateFieldsError>();
@@ -24,6 +22,15 @@ const MainTab: FC = () => {
 
 
   const updateFormValue = updateValue(setData);
+
+  const validateAndSubmit = async (deviceValues:DeviceInformation) => {
+      try {
+        await DemoApi.updateDeviceInfo(deviceValues);
+        await loadData();
+      } catch (errors: any) {
+        setFieldErrors(errors);
+      }
+    };
 
 
   useEffect(() => {
@@ -51,19 +58,11 @@ const MainTab: FC = () => {
 
   
 
-    const validateAndSubmit = async (deviceValues:DeviceInformation) => {
-      try {
-        await DemoApi.updateDeviceInfo(deviceValues);
-        await loadData();
-      } catch (errors: any) {
-        setFieldErrors(errors);
-      }
-    };
+    
 
     return (
       <>
-     
-            <ValidatedTextField
+          <ValidatedTextField
           fieldErrors={fieldErrors}
           name="dev_eui"
           label="Last updated"
@@ -93,7 +92,7 @@ const MainTab: FC = () => {
           label="Peak Period Interval (s)"
           fullWidth
           variant="outlined"
-          value={(data.signa_period ? (parseInt(data.signa_period)/1000).toFixed(2) : "")}
+          value={(data.signal_period ? (parseInt(data.signal_period)/1000).toFixed(2) : "")}
           InputProps={{
             readOnly: true
           }}
@@ -146,7 +145,12 @@ const MainTab: FC = () => {
           <Button startIcon={<BrowserUpdated />} disabled={saving} variant="contained" color="primary" type="submit" onClick={()=> loadData()}>
             Reload 
           </Button>
-          <Button startIcon={data.is_turned_on ? <StopCircle /> : <PlayCircle />} disabled={saving} variant="contained" color={data.is_turned_on ? "error" : "success"} type="submit" onClick={()=>{validateAndSubmit({is_turned_on:!data.is_turned_on})}}>
+          <Button 
+            startIcon={data.is_turned_on ? <StopCircle /> : <PlayCircle />} 
+            disabled={saving} variant="contained" 
+            color={data.is_turned_on ? "error" : "success"} 
+            type="submit" 
+            onClick={()=>{validateAndSubmit({is_turned_on:!data.is_turned_on})}}>
             Turn {data.is_turned_on ? "Off" : "On"}
           </Button>
         </ButtonRow>
@@ -154,10 +158,42 @@ const MainTab: FC = () => {
     );
   };
 
+  const settingsContent = () => {
+    if (!data) {
+      return (<FormLoader onRetry={loadData} errorMessage={errorMessage} />);
+    }
+
+    return (
+    <>
+      <BlockFormControlLabel
+        control={
+          <Checkbox
+            checked={data.is_ultra_energy_saving_mode || false}
+            onChange={(e) => {validateAndSubmit({is_ultra_energy_saving_mode: e.target.checked})}}
+            name="is_ultra_energy_saving_mode"
+            color="primary"
+          />
+        }
+        label="Ultra Energy Saving Mode"
+      /> 
+      <MessageBox 
+          message="Enabling Ultra Energy Saving Mode won't be possible turn on/off the electrifier from app." 
+          level="warning"  
+          mb={2} />
+
+    
+    </>);
+  }
+
   return (
+    <>
     <SectionContent title='Values' titleGutter>
       {content()}
     </SectionContent>
+    <SectionContent title='Settings' titleGutter>
+      {settingsContent()}
+    </SectionContent>
+    </>
   );
 };
 

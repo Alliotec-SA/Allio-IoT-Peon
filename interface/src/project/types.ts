@@ -9,7 +9,7 @@ export interface DeviceSettings {
 export interface DeviceInformation {
   last_checked?: string;
   signal_voltage?: string;
-  signa_period?: string;
+  signal_period?: string;
   battery_voltage?: string;
   solar_voltage?: string;
   battery?: string;
