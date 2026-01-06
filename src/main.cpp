@@ -90,7 +90,7 @@ void setup() {
   deviceStateService.begin();
 
   // Explicitly cast the function pointer to resolve overload ambiguity
-  turnOnElectrifier((bool) deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
+  turnOnElectrifier(deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
 
   // start the server
   server.begin();
@@ -120,7 +120,7 @@ void loop() {
   }
 
   if(isElectrifierTurnedOn != deviceStateService.isElectrifierTurnedOn()){
-    turnOnElectrifier((bool) deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
+    turnOnElectrifier(deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
   } 
 
   analyzer.update();

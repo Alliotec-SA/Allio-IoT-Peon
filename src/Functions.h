@@ -4,6 +4,7 @@
 #include "LoraWan.h"
 #include <ESP8266React.h>
 #include <DeviceLoRaWanSettingsService.h>
+#include <DeviceStateService.h>
 
 
 extern LoraWan lorawan; 
