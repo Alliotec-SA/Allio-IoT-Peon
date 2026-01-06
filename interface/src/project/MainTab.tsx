@@ -27,18 +27,17 @@ const MainTab: FC = () => {
 
 
   useEffect(() => {
-      let interval: NodeJS.Timeout; 
-      if (isRunningAnalyzingProcess) {
-        interval = setInterval(async () => {
+      if (!isRunningAnalyzingProcess) return;
+
+      const interval = setInterval(async () => {
           await loadData();
           if (!data?.is_running_analyzing_process) {
             setIsRunningAnalyzingProcess(false);
             clearInterval(interval);
           }
         }, 5000);
-      }
       return () => clearInterval(interval);
-    }, [isRunningAnalyzingProcess, data]);
+    }, [isRunningAnalyzingProcess, data ]);
 
   const content = () => {
     
@@ -54,7 +53,7 @@ const MainTab: FC = () => {
 
     const validateAndSubmit = async (deviceValues:DeviceInformation) => {
       try {
-        DemoApi.updateDeviceInfo(deviceValues);
+        await DemoApi.updateDeviceInfo(deviceValues);
         await loadData();
       } catch (errors: any) {
         setFieldErrors(errors);
@@ -141,7 +140,7 @@ const MainTab: FC = () => {
 
         
         <ButtonRow mt={1}>
-          <Button startIcon={ <PlayCircle />} disabled={saving} variant="contained" color="primary" type="submit" onClick={()=>{validateAndSubmit({is_running_analyzing_process:true})}}>
+          <Button startIcon={ <PlayCircle />} disabled={saving} variant="contained" color="primary" type="submit" onClick={()=>{setIsRunningAnalyzingProcess(true); validateAndSubmit({start_analyzing_process:true})}}>
             Start Analysis 
           </Button>
           <Button startIcon={<BrowserUpdated />} disabled={saving} variant="contained" color="primary" type="submit" onClick={()=> loadData()}>

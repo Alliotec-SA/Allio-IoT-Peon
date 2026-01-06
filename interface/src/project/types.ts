@@ -17,6 +17,7 @@ export interface DeviceInformation {
   is_running_analyzing_process?: boolean;
   is_turned_on?: boolean;
   is_ultra_energy_saving_mode?: boolean;
+  start_analyzing_process?: boolean;
 }
 
 export interface DeviceLoRaWanSettings {
