@@ -14,6 +14,8 @@ class DeviceState {
   LastResult lastResult;
   boolean isRunningAnalyzingProcess = false;
   boolean startAnalyzingProcess = false;
+  boolean isTurnedOn = true;
+
   static void read(DeviceState& settings, JsonObject& root) {
     root["signal_voltage"] = String(settings.lastResult.signalVoltage);
     root["signa_period"] = String(settings.lastResult.signalPeriod);
@@ -24,12 +26,16 @@ class DeviceState {
     root["timeout"] = String(settings.lastResult.timeout);
     root["last_checked"] = String(settings.lastResult.lastChecked);
     root["is_running_analyzing_process"] = settings.isRunningAnalyzingProcess;
+    root["is_turned_on"] = settings.isTurnedOn;
   }
 
 
   static StateUpdateResult update(JsonObject& root, DeviceState& settings) {
-    settings.startAnalyzingProcess = true;
-    settings.isRunningAnalyzingProcess = true;
+    settings.startAnalyzingProcess = root["start_analyzing_process"] | settings.startAnalyzingProcess;
+    if(settings.startAnalyzingProcess) {
+        settings.isRunningAnalyzingProcess = true;
+    }
+    settings.isTurnedOn = root["is_turned_on"] | settings.isTurnedOn;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -39,6 +45,8 @@ class DeviceStateService : public StatefulService<DeviceState> {
   DeviceStateService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
   void updateLastValue(LastResult value);
   void updateIsRunningAnalyzingProcess(boolean value);
+  void updateElectrifierState(boolean value);
+  boolean isElectrifierTurnedOn();
   boolean startAnalyzingProcess();
   void begin();
 

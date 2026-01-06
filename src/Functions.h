@@ -25,8 +25,7 @@ void bytesToHexString(const uint8_t* data, size_t len, char* outHex, size_t outL
 void goToSleep(unsigned long t0);
 void resetWifiSettings();
 void setupLoRaWan();
-void turnOffElectrifier();
-void turnOnElectrifier();
+void turnOnElectrifier(boolean state, boolean* isTurnedOn, DeviceStateService* deviceStateService);
 
 void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec);
 

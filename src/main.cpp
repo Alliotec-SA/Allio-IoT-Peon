@@ -31,6 +31,7 @@ bool loraSent = false;
 bool jsonSent = false;
 unsigned long wifiWaitStart = 0;
 bool waitingForWiFi = false;
+boolean isElectrifierTurnedOn = false;
 
 
 struct RTCData {
@@ -46,7 +47,8 @@ void setup() {
   digitalWrite(PIN_DRST, LOW);
   pinMode(PIN_WKP, WAKEUP_PULLUP);
   pinMode(PIN_TURN_ON_OFF_ELECTRIFIER, OUTPUT);
-  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
+   
+
   
 
   system_rtc_mem_read(RTC_ADDR, &rtcData, sizeof(rtcData));
@@ -84,6 +86,9 @@ void setup() {
   deviceLoRaWanSettingsService.hasNewData(); // to avoid first glitch
   deviceStateService.begin();
 
+  // Explicitly cast the function pointer to resolve overload ambiguity
+  turnOnElectrifier((bool) deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
+
   // start the server
   server.begin();
 
@@ -109,6 +114,11 @@ void loop() {
     SerialDebug.println("Starting setup lora device");
     setupLoRaWan();
   }
+
+  if(isElectrifierTurnedOn != deviceStateService.isElectrifierTurnedOn()){
+    turnOnElectrifier((bool) deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
+  } 
+
   analyzer.update();
   deviceStateService.updateIsRunningAnalyzingProcess(analyzer.isAnalyzerRunning());
 

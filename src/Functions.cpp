@@ -4,6 +4,7 @@
 #include <Adafruit_ADS1X15.h>
 #include <WiFiClientSecureBearSSL.h>
 #include <ESP8266HTTPClient.h>
+#include <DeviceStateService.h>
 
 extern Adafruit_ADS1115 ads;
 
@@ -32,12 +33,15 @@ bool hasClientConnected(){
   return WiFi.softAPgetStationNum() > 0;
 }
 
-void turnOffElectrifier(){
-  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW); // Turn off
-}
 
-void turnOnElectrifier(){
-  digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
+void turnOnElectrifier(boolean state, boolean* isTurnedOn, DeviceStateService* deviceStateService){
+  *isTurnedOn = state;
+  deviceStateService->updateElectrifierState(state);
+  if(state){
+    digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
+  }else{    
+    digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW); // Turn off
+  }
 }
 
 void resetWifiSettings() {
