@@ -7,6 +7,7 @@
 #include <DeviceLoRaWanSettingsService.h>
 #include "CycleAnalyzer.h"
 #include "LoraWan.h"
+#include "SoftTimer.h"
 
 
 
@@ -34,6 +35,7 @@ unsigned long wifiWaitStart = 0;
 bool waitingForWiFi = false;
 boolean isElectrifierTurnedOn = false;
 unsigned long runAnalyzerIntervalMs = UPDATE_TIME_IN_HOURS * 3600000;
+SoftTimer timerRequestCommandsHTTP(5000);
 
 
 
@@ -114,6 +116,7 @@ void setup() {
   loraSent = false;
   jsonSent = false;
   lorawan.setLowPowerMode(false);
+  timerRequestCommandsHTTP.start();
 }
 
 void loop() {
@@ -129,6 +132,12 @@ void loop() {
 
   analyzer.update();
   deviceStateService.updateIsRunningAnalyzingProcess(analyzer.isAnalyzerRunning());
+
+  if(!analyzer.isAnalyzerRunning() && timerRequestCommandsHTTP.elapsed()){
+    SerialDebug.println("Requesting commands over HTTP");
+    requestCommandsOverHTTP();
+    timerRequestCommandsHTTP.reset();
+  }
 
   if(!analyzer.isAnalyzerRunning() && deviceStateService.startAnalyzingProcess()){
     SerialDebug.println("Start Analyzer from Device State Service");
@@ -209,6 +218,8 @@ void loop() {
   }
 
 }
+
+
 
 
 

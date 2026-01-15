@@ -264,7 +264,7 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
 }
 
 
-void ackCommandPost(String host, String path, String token, String devEUI, String command, boolean commandACK, boolean isElectrifierTurnedOn) {
+void ackCommandPost(String host, String path, String token, String devEUI, String ref, boolean commandACK, boolean isElectrifierTurnedOn) {
   const int httpsPort = 443;
 
   SerialDebug.println("\n[🔌 Attempting connection...]");
@@ -280,7 +280,7 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   // Build JSON payload
   String json = "{";
   json += "\"devEUI\":\"" + devEUI + "\",";
-  json += "\"command\":" + command + ",";
+  json += "\"ref\":" + ref + ",";
   json += "\"commandACK\":" + String(commandACK ? "true" : "false") + ",";
   json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}" ;
@@ -466,5 +466,33 @@ uint16_t calcCRC(const uint8_t *buf, uint8_t len) {
   }
 
   return crc;
+}
+
+
+void requestCommandsOverHTTP(){
+  
+}
+
+void callbackForHttpCommands(const String& command, bool value, const String& ref){
+  SerialDebug.print("Received command via HTTP - Command: ");
+  SerialDebug.print(command);
+  SerialDebug.print(", Value: ");
+  SerialDebug.print(value);
+  SerialDebug.print(", Ref: ");
+  SerialDebug.println(ref);
+
+  if(command == "on"){
+    boolean ack = false;
+    if(!deviceStateService.isUltraEnergySavingMode()){
+      SerialDebug.println("Turning ON electrifier via HTTP command");
+      turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService);
+      true;
+    }else{
+      SerialDebug.println("Cannot turn ON electrifier, Ultra Energy Saving Mode is active");
+    }
+    ackCommandPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), ref, ack, isElectrifierTurnedOn);
+  }else{
+    SerialDebug.println("Unknown command received via HTTP");
+  }
 }
 
