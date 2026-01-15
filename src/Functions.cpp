@@ -1,3 +1,4 @@
+
 #include <Functions.h>
 #include "Settings.h"
 #include <ESP8266React.h>
@@ -260,6 +261,145 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
 
   https.end();
   SerialDebug.println("[🔚 HTTPS session closed]");
+}
+
+
+void ackCommandPost(String host, String path, String token, String devEUI, String command, boolean commandACK, boolean isElectrifierTurnedOn) {
+  const int httpsPort = 443;
+
+  SerialDebug.println("\n[🔌 Attempting connection...]");
+  SerialDebug.print("[ℹ️] Host: "); SerialDebug.println(host);
+  SerialDebug.print("[ℹ️] Port: "); SerialDebug.println(httpsPort);
+  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path);
+
+  if (WiFi.status() != WL_CONNECTED) {
+    SerialDebug.println("❌ ERROR: Not connected to WiFi.");
+    return;
+  }
+
+  // Build JSON payload
+  String json = "{";
+  json += "\"devEUI\":\"" + devEUI + "\",";
+  json += "\"command\":" + command + ",";
+  json += "\"commandACK\":" + String(commandACK ? "true" : "false") + ",";
+  json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
+  json += "}" ;
+
+  // Create secure client and disable SSL validation
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
+  client->setInsecure();
+  client->setBufferSizes(512, 512); 
+
+  HTTPClient https;
+  String url = "https://" + host + path;
+
+  SerialDebug.print("[📡 Connecting to HTTPS URL] ");
+  SerialDebug.println(url);
+
+  if (!https.begin(*client, url)) {
+    SerialDebug.println("❌ ERROR: HTTPS connection failed (begin).");
+
+    // Additional IP resolution diagnostics
+    IPAddress ip;
+    if (WiFi.hostByName(host.c_str(), ip)) {
+      SerialDebug.print("🧭 DNS resolved IP: ");
+      SerialDebug.println(ip);
+      SerialDebug.println("➡️  DNS resolution is OK.");
+    } else {
+      SerialDebug.println("❌ ERROR: Failed to resolve DNS.");
+    }
+
+    return;
+  }
+
+  // Set headers and body
+  https.addHeader("Content-Type", "application/json");
+  https.addHeader("Authorization", "Bearer " + token);
+
+  SerialDebug.println("[📤 Sending POST request]");
+  int httpCode = https.POST(json);
+
+  if (httpCode > 0) {
+    SerialDebug.printf("[✅ HTTP Response Code]: %d\n", httpCode);
+    String payload = https.getString();
+    SerialDebug.println("[📨 Server Response]:");
+    SerialDebug.println(payload);
+  } else {
+    SerialDebug.printf("❌ HTTP POST failed. code: %d  Error: %s\n",httpCode, https.errorToString(httpCode).c_str());
+  }
+
+  https.end();
+  SerialDebug.println("[🔚 HTTPS session closed]");
+}
+
+// GET request for commands, calls callback for each command if HTTP 200
+// callback signature: void callback(const String& command, bool value, const String& ref)
+bool getCommandsByHTTP(String host, String path, String token, String devEUI, void (*callback)(const String&, bool, const String&)) {
+  const int httpsPort = 443;
+
+  SerialDebug.println("\n[🔌 Attempting GET connection...]");
+  SerialDebug.print("[ℹ️] Host: "); SerialDebug.println(host);
+  SerialDebug.print("[ℹ️] Port: "); SerialDebug.println(httpsPort);
+  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path);
+
+  if (WiFi.status() != WL_CONNECTED) {
+    SerialDebug.println("❌ ERROR: Not connected to WiFi.");
+    return false;
+  }
+
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
+  client->setInsecure();
+  client->setBufferSizes(512, 512);
+
+  HTTPClient https;
+  String url = "https://" + host + path;
+
+  SerialDebug.print("[📡 Connecting to HTTPS URL] ");
+  SerialDebug.println(url);
+
+  if (!https.begin(*client, url)) {
+    SerialDebug.println("❌ ERROR: HTTPS connection failed (begin).");
+    return false;
+  }
+
+  https.addHeader("Authorization", "Bearer " + token);
+
+  int httpCode = https.GET();
+
+  if (httpCode == 200) {
+    String payload = https.getString();
+    SerialDebug.println("[📨 Server Response]:");
+    SerialDebug.println(payload);
+
+    // Parse JSON array
+    DynamicJsonDocument doc(1024);
+    DeserializationError error = deserializeJson(doc, payload);
+    if (error) {
+      SerialDebug.print("❌ JSON parse error: ");
+      SerialDebug.println(error.c_str());
+      https.end();
+      return false;
+    }
+    if (!doc.is<JsonArray>()) {
+      SerialDebug.println("❌ JSON is not an array");
+      https.end();
+      return false;
+    }
+    for (JsonObject obj : doc.as<JsonArray>()) {
+      String ref = obj["ref"] | "";
+      String command = obj["command"] | "";
+      bool value = obj["value"] | false;
+      if (callback) {
+        callback(command, value, ref);
+      }
+    }
+    https.end();
+    return true;
+  } else {
+    SerialDebug.printf("❌ HTTP GET failed. code: %d  Error: %s\n", httpCode, https.errorToString(httpCode).c_str());
+    https.end();
+    return false;
+  }
 }
 
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
