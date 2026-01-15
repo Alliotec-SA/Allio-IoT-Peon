@@ -28,7 +28,7 @@ void resetWifiSettings();
 void setupLoRaWan();
 void turnOnElectrifier(boolean state, boolean* isTurnedOn, DeviceStateService* deviceStateService);
 
-void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec);
+void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, boolean isElectrifierTurnedOn);
 
 
 

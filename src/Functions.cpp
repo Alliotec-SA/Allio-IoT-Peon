@@ -190,7 +190,7 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   client.stop();
 }*/
 
-void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec) {
+void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, boolean isElectrifierTurnedOn) {
   const int httpsPort = 443;
 
   SerialDebug.println("\n[🔌 Attempting connection...]");
@@ -212,6 +212,7 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   json += "\"pulse_voltage\":" + String(pulse_voltage, 2) + ",";
   json += "\"pulse_time\":" + String(pulse_time) + ",";
   json += "\"battery_alliotec\":" + String(battery_alliotec, 2);
+  json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}";
 
   // Create secure client and disable SSL validation
