@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { ValidateFieldsError } from "async-validator";
 
-import { Button, Checkbox } from "@mui/material";
+import { Button, Checkbox, RadioGroup, FormControlLabel, Radio, FormControl, Box } from "@mui/material";
 import SaveIcon from '@mui/icons-material/Save';
 
 import { BlockFormControlLabel, ButtonRow, FormLoader, MessageBox, SectionContent, ValidatedTextField } from "../components";
@@ -53,6 +53,42 @@ const DeviceLoRaWanSettingsForm: FC = () => {
           label={data.enabled ? "Uncheck to disable":"Check to enable"}
         />
         {data.enabled ? <>
+
+
+        <FormControl
+          component="fieldset"
+          sx={{
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 1,
+            p: 2,
+            pt: 3 // space for legend overlap
+          }}
+        >
+          <Box
+            component="legend"
+            sx={{
+              px: 1,
+              fontSize: "0.875rem",
+              color: "text.secondary"
+            }}
+          >
+            Class Mode
+          </Box>
+
+          <RadioGroup
+            row
+            name="class_mode"
+            value={data.class_mode}
+            onChange={updateFormValue}
+          >
+            <FormControlLabel value="A" control={<Radio />} label="Class A" />
+            <FormControlLabel value="B" control={<Radio />} label="Class B" />
+            <FormControlLabel value="C" control={<Radio />} label="Class C" />
+          </RadioGroup>
+        </FormControl>
+          
+         
           <BlockFormControlLabel
           control={
             <Checkbox

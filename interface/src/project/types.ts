@@ -30,6 +30,7 @@ export interface DeviceLoRaWanSettings {
   nets_key: string;
   apps_key: string;
   enabled: boolean;
+  class_mode: string;
 }
 
 export interface LightState {
