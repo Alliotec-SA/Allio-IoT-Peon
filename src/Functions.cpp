@@ -215,7 +215,7 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   json += "\"pulse_voltage\":" + String(pulse_voltage, 2) + ",";
   json += "\"pulse_time\":" + String(pulse_time) + ",";
   json += "\"battery_alliotec\":" + String(battery_alliotec, 2);
-  json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
+  json += "\"electrifier_should_be_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}";
 
   // Create secure client and disable SSL validation
@@ -284,10 +284,8 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   json += "\"devEUI\":\"" + devEUI + "\",";
   json += "\"action\":\"" + command + "\",";
   json += "\"resultExecutePeon\":" + String(executionCommandDone ? "true" : "false") + ",";
-  json += "\"response\":\"" + response + "\"";
-
-  //json += "\"response\":\"" + response + "\",";
-  //json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
+  json += "\"response\":\"" + response + "\",";
+  json += "\"electrifier_should_be_on\":" + String(deviceStateService.isElectrifierTurnedOn() ? "true" : "false");
   json += "}" ;
 
   // Create secure client and disable SSL validation
