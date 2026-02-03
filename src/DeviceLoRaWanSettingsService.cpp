@@ -93,6 +93,14 @@ String DeviceLoRaWanSettingsService::getNetsKey() {
   return value;
 }
 
+String DeviceLoRaWanSettingsService::getClassMode() {
+  String value;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.classMode;
+  });
+  return value;
+}
+
 void DeviceLoRaWanSettingsService::begin() {
   _fsPersistence.readFromFS();
 }

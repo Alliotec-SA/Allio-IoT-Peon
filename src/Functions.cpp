@@ -104,6 +104,7 @@ void goToSleep(unsigned long t0){
 
 void setupLoRaWan(){
   lorawan.setJoinMode(deviceLoRaWanSettingsService.shouldUseOtaa());
+  lorawan.setClassMode(deviceLoRaWanSettingsService.getClassMode().charAt(0)); // 'A', 'B' o 'C'
 
   if(deviceLoRaWanSettingsService.shouldUseOtaa()){
     lorawan.setDevEUI(deviceLoRaWanSettingsService.getDevEUI().c_str());

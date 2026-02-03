@@ -17,6 +17,9 @@ class LoraWan {
     bool setLowPowerMode(bool enabled);
     bool setLowPowerLevel(uint8_t level); // 1 o 2
 
+    //TX
+    bool setClassMode(char mode); // 'A', 'B' o 'C'
+
     // OTAA
     bool setDevEUI(const char *eui);
     bool setAppEUI(const char *eui);
@@ -51,6 +54,7 @@ class LoraWan {
     bool getConfirmStatus(char *out, size_t len);
     bool getLowPowerMode(char *out, size_t len);
     bool getLowPowerLevel(char *out, size_t len);
+    bool getClassMode(char *out, size_t len);
 
   private:
     HardwareSerial *_serial;

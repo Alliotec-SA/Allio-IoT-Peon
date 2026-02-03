@@ -62,6 +62,18 @@ bool LoraWan::setLowPowerLevel(uint8_t level) {
   return sendCommand(cmd);
 }
 
+//TX
+bool LoraWan::setClassMode(char mode) {
+  //validate only 'A', 'B', 'C'
+  if (mode != 'A' && mode != 'B' && mode != 'C') {
+    SerialDebug.println("Invalid class mode. Use 'A', 'B', or 'C'.");
+    return false;
+  }
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+CLASS=%c", mode);
+  return sendCommand(cmd);
+}
+
 // OTAA
 bool LoraWan::setDevEUI(const char *eui) {
   char cmd[40];
@@ -164,3 +176,4 @@ bool LoraWan::getJoinStatus(char *out, size_t len)    { return getResponse("AT+N
 bool LoraWan::getConfirmStatus(char *out, size_t len) { return getResponse("AT+CFS=?", out, len); }
 bool LoraWan::getLowPowerMode(char *out, size_t len)  { return getResponse("AT+LPM=?", out, len); }
 bool LoraWan::getLowPowerLevel(char *out, size_t len) { return getResponse("AT+LPMLVL=?", out, len); }
+bool LoraWan::getClassMode(char *out, size_t len)     { return getResponse("AT+CLASS=?", out, len); }

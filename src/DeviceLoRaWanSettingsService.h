@@ -23,6 +23,7 @@ class DeviceLoRaWanSettings {
   String devAddress;
   String appsKey;
   String netsKey;
+  String classMode;
   bool use_otaa;
   bool enabled;
   bool isNewData = false;
@@ -70,6 +71,7 @@ class DeviceLoRaWanSettings {
       settings.use_otaa = strstr(buffer, "=1") != nullptr;
     }*/
     root["use_otaa"] = settings.use_otaa;
+    root["class_mode"] = settings.classMode;
 
     root["enabled"] = settings.enabled;
   }
@@ -101,6 +103,7 @@ class DeviceLoRaWanSettings {
 
     settings.enabled = root["enabled"] | true;
     settings.isNewData = true;
+    settings.classMode = root["class_mode"] | SettingValue::format("A");
 
     return StateUpdateResult::CHANGED;
   }
@@ -116,6 +119,7 @@ class DeviceLoRaWanSettingsService : public StatefulService<DeviceLoRaWanSetting
   String getDevAddress();
   String getAppsKey();
   String getNetsKey();
+  String getClassMode();
   bool hasNewData();
   bool shouldUseOtaa();
   bool isEnabled();
