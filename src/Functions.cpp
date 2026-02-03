@@ -40,8 +40,10 @@ void turnOnElectrifier(boolean state, boolean* isTurnedOn, DeviceStateService* d
   deviceStateService->updateElectrifierState(state);
   if(state){
     digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
+    SerialDebug.println("Electrifier Turned ON");
   }else{    
     digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW); // Turn off
+    SerialDebug.println("Electrifier Turned OFF");
   }
 }
 
@@ -264,7 +266,7 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
 }
 
 
-void ackCommandPost(String host, String path, String token, String devEUI, String ref, boolean commandACK, boolean isElectrifierTurnedOn) {
+void ackCommandPost(String host, String path, String token, String devEUI, String command, boolean executionCommandDone, String response) {
   const int httpsPort = 443;
 
   SerialDebug.println("\n[🔌 Attempting connection...]");
@@ -280,9 +282,12 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   // Build JSON payload
   String json = "{";
   json += "\"devEUI\":\"" + devEUI + "\",";
-  json += "\"ref\":" + ref + ",";
-  json += "\"commandACK\":" + String(commandACK ? "true" : "false") + ",";
-  json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
+  json += "\"action\":\"" + command + "\",";
+  json += "\"resultExecutePeon\":" + String(executionCommandDone ? "true" : "false") + ",";
+  json += "\"response\":\"" + response + "\"";
+
+  //json += "\"response\":\"" + response + "\",";
+  //json += "\"electrifier_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}" ;
 
   // Create secure client and disable SSL validation
@@ -291,7 +296,7 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   client->setBufferSizes(512, 512); 
 
   HTTPClient https;
-  String url = "https://" + host + path;
+  String url = "https://" + host + path + "/action" ;
 
   SerialDebug.print("[📡 Connecting to HTTPS URL] ");
   SerialDebug.println(url);
@@ -319,13 +324,17 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   SerialDebug.println("[📤 Sending POST request]");
   int httpCode = https.POST(json);
 
-  if (httpCode > 0) {
+  if (httpCode == 200) {
     SerialDebug.printf("[✅ HTTP Response Code]: %d\n", httpCode);
     String payload = https.getString();
     SerialDebug.println("[📨 Server Response]:");
     SerialDebug.println(payload);
   } else {
-    SerialDebug.printf("❌ HTTP POST failed. code: %d  Error: %s\n",httpCode, https.errorToString(httpCode).c_str());
+    //Print error with enough information also include error string, payload response if exist and sended data
+    SerialDebug.printf("❌ HTTP POST failed. code: %d  Error: %s\n Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
+    //Print sent data
+    SerialDebug.println("[📤 Sent JSON Payload]:");
+    SerialDebug.println(json);
   }
 
   https.end();
@@ -334,13 +343,13 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
 
 // GET request for commands, calls callback for each command if HTTP 200
 // callback signature: void callback(const String& command, bool value, const String& ref)
-bool getCommandsByHTTP(String host, String path, String token, String devEUI, void (*callback)(const String&, bool, const String&)) {
+bool getCommandsByHTTP(String host, String path, String token, String devEUI, void (*callback)(const String&)) {
   const int httpsPort = 443;
 
   SerialDebug.println("\n[🔌 Attempting GET connection...]");
   SerialDebug.print("[ℹ️] Host: "); SerialDebug.println(host);
   SerialDebug.print("[ℹ️] Port: "); SerialDebug.println(httpsPort);
-  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path);
+  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path+"/action");
 
   if (WiFi.status() != WL_CONNECTED) {
     SerialDebug.println("❌ ERROR: Not connected to WiFi.");
@@ -352,7 +361,7 @@ bool getCommandsByHTTP(String host, String path, String token, String devEUI, vo
   client->setBufferSizes(512, 512);
 
   HTTPClient https;
-  String url = "https://" + host + path;
+  String url = "https://" + host + path+"/action?devEUI=" + devEUI;
 
   SerialDebug.print("[📡 Connecting to HTTPS URL] ");
   SerialDebug.println(url);
@@ -380,23 +389,28 @@ bool getCommandsByHTTP(String host, String path, String token, String devEUI, vo
       https.end();
       return false;
     }
-    if (!doc.is<JsonArray>()) {
-      SerialDebug.println("❌ JSON is not an array");
+    
+    //validata is response is JSON object and contains key data
+    if(!doc.is<JsonObject>() || !doc.containsKey("data")){
+      SerialDebug.println("❌ JSON response is not an object or does not contain 'data' key.");
       https.end();
       return false;
     }
-    for (JsonObject obj : doc.as<JsonArray>()) {
-      String ref = obj["ref"] | "";
-      String command = obj["command"] | "";
-      bool value = obj["value"] | false;
+
+    //Response is JSON in key data I have the array of commands
+    JsonArray commandsArray = doc["data"].as<JsonArray>();
+    for (JsonObject obj : commandsArray) {
+      String command = obj["action"] | "";
       if (callback) {
-        callback(command, value, ref);
+        callback(command);
       }
     }
     https.end();
     return true;
   } else {
-    SerialDebug.printf("❌ HTTP GET failed. code: %d  Error: %s\n", httpCode, https.errorToString(httpCode).c_str());
+    //Do serial debug error with enough information
+    SerialDebug.printf("❌ HTTP GET failed. code: %d  Error: %s\n Payload: %s" ,httpCode, https.errorToString(httpCode).c_str(), https.getString( ).c_str());
+   
     https.end();
     return false;
   }
@@ -470,29 +484,35 @@ uint16_t calcCRC(const uint8_t *buf, uint8_t len) {
 
 
 void requestCommandsOverHTTP(){
-  
+  getCommandsByHTTP(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), callbackForHttpCommands);
 }
 
-void callbackForHttpCommands(const String& command, bool value, const String& ref){
+
+void callbackForHttpCommands(const String& command){
   SerialDebug.print("Received command via HTTP - Command: ");
   SerialDebug.print(command);
-  SerialDebug.print(", Value: ");
-  SerialDebug.print(value);
-  SerialDebug.print(", Ref: ");
-  SerialDebug.println(ref);
+  boolean executionCommandDone = false;
+  String response = "";
 
-  if(command == "on"){
-    boolean ack = false;
+  if(command == "turnOnDevice"){
     if(!deviceStateService.isUltraEnergySavingMode()){
       SerialDebug.println("Turning ON electrifier via HTTP command");
       turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService);
-      true;
+      executionCommandDone = true;
     }else{
+      response = "Ultra Energy Saving Mode is active, cannot turn ON electrifier";
       SerialDebug.println("Cannot turn ON electrifier, Ultra Energy Saving Mode is active");
     }
-    ackCommandPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), ref, ack, isElectrifierTurnedOn);
+  }else if(command == "turnOffDevice"){
+    SerialDebug.println("Turning OFF electrifier via HTTP command");
+    turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService);
+    executionCommandDone = true;
   }else{
+    response = "Unknown command received via HTTP";
     SerialDebug.println("Unknown command received via HTTP");
   }
+
+  ackCommandPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), command, executionCommandDone, response);
+  
 }
 
