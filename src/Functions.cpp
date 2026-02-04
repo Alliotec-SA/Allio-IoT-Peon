@@ -415,6 +415,26 @@ bool getCommandsByHTTP(String host, String path, String token, String devEUI, vo
   }
 }
 
+void sendLoRaWanCommandACK(uint8_t command, boolean executionCommandDone){
+  uint8_t data[6];
+  data[0] = LORAWAN_TX_ACK_VERSION; 
+  data[1] = deviceStateService.isElectrifierTurnedOn() ? 0x01 : 0x00;
+  data[2] = command;
+  data[3] = executionCommandDone ? 0x01 : 0x00;
+  uint16_t crc = calcCRC(data, 4);
+  data[4] = crc & 0xFF;
+  data[5] = (crc >> 8) & 0xFF;
+  char hexPayload[13]; // 6 bytes * 2 hex chars + null terminator
+  bytesToHexString(data, sizeof(data), hexPayload, sizeof(hexPayload));
+  if(!lorawan.isJoined()){
+      lorawan.join();
+  }
+  bool sentState = lorawan.send(LORAWAN_UPLOAD_LINK_ACK_FPORT, hexPayload, false);
+  SerialDebug.print("LoRaWAN Command ACK send state: ");
+  SerialDebug.println(sentState ? "SUCCESS" : "FAILURE");
+  SerialDebug.print(hexPayload);
+}
+
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
   uint8_t data[10];
   uint16_t value;
@@ -528,7 +548,7 @@ bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx)
   // Byte 0: Version (1 byte)
   // Byte 1: Flags (1 byte)
   // Bytes 2-n: Commands (variable length)
-  
+
   unsigned int index = 0;
 
   ctx->cmdCount = 0;
@@ -668,6 +688,8 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
         c.success = false;
         break;
     }
+
+    sendLoRaWanCommandACK(c.cmd, c.success);
   }
 }
 

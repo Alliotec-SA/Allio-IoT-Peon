@@ -25,6 +25,7 @@ float getBatteryVoltage();
 float getSolarPannelVoltage();
 bool hasClientConnected();
 void testBoardVoltageElement(Stream &port);
+void sendLoRaWanCommandACK(uint8_t command, boolean executionCommandDone);
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec);
 uint16_t calcCRC(const uint8_t *buf, uint8_t len);
 void bytesToHexString(const uint8_t* data, size_t len, char* outHex, size_t outLen);
