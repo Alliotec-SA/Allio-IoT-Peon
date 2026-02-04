@@ -528,6 +528,9 @@ void callbackForHttpCommands(const String& command){
     SerialDebug.println("Turning OFF electrifier via HTTP command");
     turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService);
     executionCommandDone = true;
+  }else if(command == "checkElectrifierState"){
+    SerialDebug.println("Checking electrifier state via HTTP command"); // Nothing to do, just ACK, ack will send the state
+    executionCommandDone = true;
   }else{
     response = "Unknown command received via HTTP";
     SerialDebug.println("Unknown command received via HTTP");
