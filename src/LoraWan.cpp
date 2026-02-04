@@ -160,6 +160,10 @@ bool LoraWan::isJoined() {
   return false;
 }
 
+bool LoraWan::sendHeartbeat() {
+  return send(223, "00", false); // Using port 223 for heartbeat
+}
+
 // Envío y recepción
 bool LoraWan::send(uint8_t port, const char *hexPayload, bool confirmed) {
   char cmd[16];

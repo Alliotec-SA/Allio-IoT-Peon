@@ -36,6 +36,7 @@ bool waitingForWiFi = false;
 boolean isElectrifierTurnedOn = false;
 unsigned long runAnalyzerIntervalMs = UPDATE_TIME_IN_HOURS * 3600000;
 SoftTimer timerRequestCommandsHTTP(5000);
+SoftTimer timerLoraWanHeartbeat(LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECONDS * 1000);
 
 
 
@@ -117,12 +118,16 @@ void setup() {
   jsonSent = false;
   lorawan.setLowPowerMode(false);
   timerRequestCommandsHTTP.start();
+  timerLoraWanHeartbeat.start();
+  timerLoraWanHeartbeat.setInterval(deviceLoRaWanSettingsService.getClassMode() == "C" ? LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECONDS * 1000 : LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_A_IN_SECONDS * 1000);
+  lorawan.sendHeartbeat(); // First heartbeat
 }
 
 void loop() {
   esp8266React.loop();
   if(deviceLoRaWanSettingsService.hasNewData()){
     SerialDebug.println("Starting setup lora device");
+    timerLoraWanHeartbeat.setInterval(deviceLoRaWanSettingsService.getClassMode() == "C" ? LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECONDS * 1000 : LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_A_IN_SECONDS * 1000);
     setupLoRaWan();
   }
 
@@ -132,6 +137,11 @@ void loop() {
 
   analyzer.update();
   deviceStateService.updateIsRunningAnalyzingProcess(analyzer.isAnalyzerRunning());
+  if(!analyzer.isAnalyzerRunning() && !deviceStateService.isUltraEnergySavingMode() && deviceLoRaWanSettingsService.isEnabled() && timerLoraWanHeartbeat.elapsed()){
+    SerialDebug.println("Sending LoRaWAN Heartbeat");
+    lorawan.sendHeartbeat();
+    timerLoraWanHeartbeat.reset();
+  }
 
   if(!analyzer.isAnalyzerRunning() && deviceSettingsService.isEnabled() && timerRequestCommandsHTTP.elapsed()){
     SerialDebug.println("Requesting commands over HTTP");

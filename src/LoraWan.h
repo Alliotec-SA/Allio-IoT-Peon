@@ -37,6 +37,7 @@ class LoraWan {
     bool isJoined();
 
     // Envío y recepción
+    bool sendHeartbeat();
     bool send(uint8_t port, const char *hexPayload, bool confirmed = false);
     int getLastConfirmStatus();
     bool getLastReceived(char *output, size_t maxLen);
