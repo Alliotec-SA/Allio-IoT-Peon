@@ -38,6 +38,11 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
 bool getCommandsByHTTP(String host, String path, String token, String devEUI, void (*callback)(const String&));
 void requestCommandsOverHTTP();
 void callbackForHttpCommands(const String& command);
+void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx);
+bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx);
+bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx);
+uint8_t hexToU8(const String& hex);
+void processReceivedLoRaWanCommand(String line);
 
 
 #endif

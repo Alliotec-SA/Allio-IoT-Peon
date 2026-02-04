@@ -222,9 +222,28 @@ void loop() {
       SerialDebug.flush();
   }
 
+  //In serial I received thes message format (+EVT:RX_C:-64:5:UNICAST:4:b076e8198c6454f77c56) that is
+  //RX_C | RSSI | SNR | TYPE | FPORT | PAYLOAD_HEX   I need to detect when this frame is detected I get params values, but Once Serial available try to read and keep wainting until  end of frame comes from rak3172 or timeout and evaluate
+  if(Serial.available()){
+    bool wasRunningAnalizer = analyzer.isAnalyzerRunning();
+    if(wasRunningAnalizer){
+      analyzer.cancel();
+      SerialDebug.println("Analyzer stopped to process LoRaWAN command");
+    }
+
+    String line = Serial.readStringUntil('\n');
+    //avoid any out exact chat at end
+    line.trim();
+
+    SerialDebug.print("LoRaWAN Serial Received: ");
+    SerialDebug.println(line);
+    if(line.startsWith("+EVT:RX_C:")){
+      processReceivedLoRaWanCommand(line);
+    }
+
+    if(wasRunningAnalizer){
+      analyzer.start();
+      SerialDebug.println("Analyzer restarted after processing LoRaWAN command");
+    }
+  }
 }
-
-
-
-
-

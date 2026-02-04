@@ -2,6 +2,10 @@
 #define SETTINGS_H
 
 #define LORAWAN_RESPONSE_BUFFER 128
+#define LORAWAN_DOWNLOAD_LINK_COMMANDS_FPORT 1
+#define LORAWAN_MAX_CMDS 5
+#define LORAWAN_MAX_DATA_LEN 2
+
 #define RTC_ADDR 65  // safe address range is 64–127
 #define READING_TRIES 3
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 120 
@@ -40,5 +44,28 @@ struct LastResult {
     float signalVoltage;
     float battery;
   };
+
+
+typedef struct {
+  uint8_t cmd;
+  uint8_t len;
+  uint8_t data[LORAWAN_MAX_DATA_LEN];
+
+  bool valid;
+  bool executed;
+  bool success;
+} LoRaWanRxCommand;
+
+typedef struct {
+  uint8_t version;
+  bool atomicExecution;
+} LoRaWanRxFlags;
+
+typedef struct {
+  LoRaWanRxFlags   flags;
+  LoRaWanRxCommand cmds[LORAWAN_MAX_CMDS];
+  uint8_t   cmdCount;
+} LoRaWanDownlinkContext;
+
 
 #endif

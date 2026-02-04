@@ -17,6 +17,11 @@ void CycleAnalyzer::start() {
   changeStateToWaitingFirstFalling();
 }
 
+void CycleAnalyzer::cancel() {
+  reset();
+  isRunning = false;
+}
+
 void CycleAnalyzer::update() {
   if (!isRunning || result.ready) return;
 

@@ -516,3 +516,180 @@ void callbackForHttpCommands(const String& command){
   
 }
 
+
+uint8_t hexToU8(const String& hex) {
+  return (uint8_t) strtoul(hex.c_str(), nullptr, 16);
+}
+
+
+
+bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx) {
+  unsigned int index = 0;
+
+  ctx->cmdCount = 0;
+
+  if (payloadHex.length() < 4 || payloadHex.length() % 2 != 0) {
+    Serial.println("Invalid HEX payload");
+    return false;
+  }
+
+  // ---- Version ----
+  ctx->flags.version = hexToU8(payloadHex.substring(index, index + 2));
+  index += 2;
+
+  if (ctx->flags.version != 0x01) {
+    Serial.println("Unsupported version");
+    return false;
+  }
+
+  // ---- Flags ----
+  uint8_t rawFlags = hexToU8(payloadHex.substring(index, index + 2));
+  index += 2;
+
+  ctx->flags.atomicExecution = (rawFlags & 0x01) != 0;
+
+  Serial.print("Version: ");
+  Serial.print(ctx->flags.version);
+  Serial.print(" | Atomic: ");
+  Serial.println(ctx->flags.atomicExecution ? "YES" : "NO");
+
+  // ---- Commands ----
+  while ((index + 4) <= payloadHex.length() &&
+         ctx->cmdCount < LORAWAN_MAX_CMDS) {
+
+    LoRaWanRxCommand& c = ctx->cmds[ctx->cmdCount];
+    c.valid = false;
+    c.executed = false;
+    c.success = false;
+
+    c.cmd = hexToU8(payloadHex.substring(index, index + 2));
+    index += 2;
+
+    c.len = hexToU8(payloadHex.substring(index, index + 2));
+    index += 2;
+
+    if (c.len > LORAWAN_MAX_DATA_LEN ||
+        index + c.len * 2 > payloadHex.length()) {
+      Serial.println("Invalid LEN, skipping command");
+      index += c.len * 2;
+      ctx->cmdCount++;
+      continue;
+    }
+
+    for (uint8_t i = 0; i < c.len; i++) {
+      c.data[i] = hexToU8(payloadHex.substring(index, index + 2));
+      index += 2;
+    }
+
+    c.valid = true;
+    ctx->cmdCount++;
+  }
+
+  return true;
+}
+
+
+bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx) {
+
+  for (uint8_t i = 0; i < ctx->cmdCount; i++) {
+    const LoRaWanRxCommand& c = ctx->cmds[i];
+    if (!c.valid) return false;
+
+    switch (c.cmd) {
+      case 0x01: if (c.len != 1) return false; break;
+      case 0x02: if (c.len != 2) return false; break;
+      case 0x03: if (c.len != 0) return false; break;
+      default: return false;
+    }
+  }
+  return true;
+}
+
+
+void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
+
+  if (ctx->flags.atomicExecution) {
+    Serial.println("Atomic execution enabled");
+
+    if (!LoRaWanValidateAllDownloadedCommands(ctx)) {
+      Serial.println("Atomic validation failed, nothing executed");
+      return;
+    }
+  }
+
+  for (uint8_t i = 0; i < ctx->cmdCount; i++) {
+
+    LoRaWanRxCommand& c = ctx->cmds[i];
+    if (!c.valid) continue;
+
+    c.executed = true;
+
+    switch (c.cmd) {
+
+      case 0x01:
+        // applySetting(c.data[0]);
+        c.success = true;
+        break;
+
+      case 0x02:
+        // setInterval((c.data[0] << 8) | c.data[1]);
+        c.success = true;
+        break;
+
+      case 0x03:
+        // sendStatus();
+        c.success = true;
+        break;
+
+      default:
+        c.success = false;
+        break;
+    }
+  }
+}
+
+void processReceivedLoRaWanCommand(String line){
+  line.trim(); // MUY IMPORTANTE
+  // Example line: +EVT:RX_C:-64:5:UNICAST:4:b076e8198c6454f77c56
+  //Get each part RX_C | RSSI | SNR | TYPE | FPORT | PAYLOAD_HEX
+  if (!line.startsWith("+EVT:RX_C:")) {
+    SerialDebug.println("Not RX_C");
+    return;
+  }
+
+  // Eliminar prefijo
+  line.remove(0, 11); // strlen("+EVT:RX_C:")
+
+  // Separar campos
+  int idx1 = line.indexOf(':');
+  int idx2 = line.indexOf(':', idx1 + 1);
+  int idx3 = line.indexOf(':', idx2 + 1);
+  int idx4 = line.indexOf(':', idx3 + 1);
+
+  if (idx1 == -1 || idx2 == -1 || idx3 == -1 || idx4 == -1) {
+    SerialDebug.println("Invalid RX_C format");
+    return;
+  }
+
+  int rssi = atoi(line.substring(0, idx1).c_str());
+  int snr  = atoi(line.substring(idx1 + 1, idx2).c_str());
+  String type = line.substring(idx2 + 1, idx3);
+  int fport = atoi(line.substring(idx3 + 1, idx4).c_str());
+  String payloadHex = line.substring(idx4 + 1);
+
+  SerialDebug.print("Parsed RX_C - RSSI: "); SerialDebug.print(rssi);
+  SerialDebug.print(", SNR: "); SerialDebug.print(snr);
+  SerialDebug.print(", TYPE: "); SerialDebug.print(type);
+  SerialDebug.print(", FPORT: "); SerialDebug.print(fport);
+  SerialDebug.print(", PAYLOAD_HEX: "); SerialDebug.println(payloadHex);
+
+  if(fport == LORAWAN_DOWNLOAD_LINK_COMMANDS_FPORT){
+    SerialDebug.println("Processing Commands from LoRaWAN");
+    LoRaWanDownlinkContext ctx;
+    if(LoRaWanParseDownlink(payloadHex, &ctx)){
+      LoRaWanExecuteDownloadedCommands(&ctx);
+    } else {
+      SerialDebug.println("Failed to parse downloaded commands");
+    }
+  }
+}

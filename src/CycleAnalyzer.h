@@ -21,6 +21,7 @@ public:
   void begin();
   void start();
   void update();
+  void cancel();
   bool isReady() const;
   bool isAnalyzerRunning();
   Result getResult();

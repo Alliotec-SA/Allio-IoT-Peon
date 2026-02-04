@@ -13,7 +13,21 @@ void LoraWan::flushInput() {
   while (_serial->available()) _serial->read();
 }
 
+// Overloaded sendCommand: default expected and timeout
+bool LoraWan::sendCommand(const char *cmd) {
+  // Default expected response: "OK", default timeout: 2000 ms
+  return sendCommand(cmd, "OK", 2000);
+}
+
+// Overloaded sendCommand: custom expected, default timeout
+bool LoraWan::sendCommand(const char *cmd, const char *expected) {
+  return sendCommand(cmd, expected, 2000);
+}
+
 bool LoraWan::sendCommand(const char *cmd, const char *expected, uint16_t timeout) {
+  SerialDebug.print("LoRaWAN send command: ");
+  SerialDebug.println(cmd);
+  flushInput();
   _serial->println(cmd);
   char response[LORAWAN_RESPONSE_BUFFER] = {0};
   size_t i = 0;
@@ -48,6 +62,7 @@ bool LoraWan::getResponse(const char *cmd, char *response, size_t maxLen, uint16
   response[i] = '\0';
   return i > 0;
 }
+
 
 // Sleep y bajo consumo
 bool LoraWan::sleep(unsigned long ms) {

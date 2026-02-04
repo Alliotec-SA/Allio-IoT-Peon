@@ -59,7 +59,9 @@ class LoraWan {
   private:
     HardwareSerial *_serial;
 
-    bool sendCommand(const char *cmd, const char *expected = "OK", uint16_t timeout = 1000);
+    bool sendCommand(const char *cmd);
+    bool sendCommand(const char *cmd, const char *expected);
+    bool sendCommand(const char *cmd, const char *expected, uint16_t timeout);
     bool getResponse(const char *cmd, char *response, size_t maxLen, uint16_t timeout = 1000);
     void flushInput();
 };
