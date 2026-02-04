@@ -524,12 +524,17 @@ uint8_t hexToU8(const String& hex) {
 
 
 bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx) {
+  //Documentation of the payload structure:
+  // Byte 0: Version (1 byte)
+  // Byte 1: Flags (1 byte)
+  // Bytes 2-n: Commands (variable length)
+  
   unsigned int index = 0;
 
   ctx->cmdCount = 0;
 
   if (payloadHex.length() < 4 || payloadHex.length() % 2 != 0) {
-    Serial.println("Invalid HEX payload");
+      SerialDebug.println("Invalid HEX payload");
     return false;
   }
 
@@ -538,7 +543,7 @@ bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx)
   index += 2;
 
   if (ctx->flags.version != 0x01) {
-    Serial.println("Unsupported version");
+      SerialDebug.println("Unsupported version");
     return false;
   }
 
@@ -548,10 +553,10 @@ bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx)
 
   ctx->flags.atomicExecution = (rawFlags & 0x01) != 0;
 
-  Serial.print("Version: ");
-  Serial.print(ctx->flags.version);
-  Serial.print(" | Atomic: ");
-  Serial.println(ctx->flags.atomicExecution ? "YES" : "NO");
+    SerialDebug.print("Version: ");
+    SerialDebug.print(ctx->flags.version);
+    SerialDebug.print(" | Atomic: ");
+    SerialDebug.println(ctx->flags.atomicExecution ? "YES" : "NO");
 
   // ---- Commands ----
   while ((index + 4) <= payloadHex.length() &&
@@ -570,7 +575,7 @@ bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx)
 
     if (c.len > LORAWAN_MAX_DATA_LEN ||
         index + c.len * 2 > payloadHex.length()) {
-      Serial.println("Invalid LEN, skipping command");
+      SerialDebug.println("Invalid LEN, skipping command");
       index += c.len * 2;
       ctx->cmdCount++;
       continue;
@@ -585,6 +590,25 @@ bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx)
     ctx->cmdCount++;
   }
 
+  // Log parsed commands
+  SerialDebug.print("Parsed Commands Count: ");
+  SerialDebug.println(ctx->cmdCount);
+  for (uint8_t i = 0; i < ctx->cmdCount; i++) {
+    const LoRaWanRxCommand& c = ctx->cmds[i];
+    SerialDebug.print(" Command ");
+    SerialDebug.print(i);
+    SerialDebug.print(": CMD=0x");
+    SerialDebug.print(c.cmd, HEX);
+    SerialDebug.print(", LEN=");
+    SerialDebug.print(c.len);
+    SerialDebug.print(", DATA=");
+    for (uint8_t j = 0; j < c.len; j++) {
+      SerialDebug.print("0x");
+      SerialDebug.print(c.data[j], HEX);
+      if (j < c.len - 1) SerialDebug.print(" ");
+    }
+    SerialDebug.println(c.valid ? " [VALID]" : " [INVALID]");
+  }
   return true;
 }
 
@@ -596,9 +620,10 @@ bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx) {
     if (!c.valid) return false;
 
     switch (c.cmd) {
-      case 0x01: if (c.len != 1) return false; break;
-      case 0x02: if (c.len != 2) return false; break;
-      case 0x03: if (c.len != 0) return false; break;
+      case LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER:
+      case LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER:
+        if (c.len != 0) return false;
+        break;
       default: return false;
     }
   }
@@ -609,10 +634,10 @@ bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx) {
 void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
 
   if (ctx->flags.atomicExecution) {
-    Serial.println("Atomic execution enabled");
+      SerialDebug.println("Atomic execution enabled");
 
     if (!LoRaWanValidateAllDownloadedCommands(ctx)) {
-      Serial.println("Atomic validation failed, nothing executed");
+      SerialDebug.println("Atomic validation failed, nothing executed");
       return;
     }
   }
@@ -626,22 +651,20 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
 
     switch (c.cmd) {
 
-      case 0x01:
-        // applySetting(c.data[0]);
+      case LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER:
+        turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService);
         c.success = true;
         break;
 
-      case 0x02:
-        // setInterval((c.data[0] << 8) | c.data[1]);
-        c.success = true;
-        break;
-
-      case 0x03:
-        // sendStatus();
+      case LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER:
+        turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService);
         c.success = true;
         break;
 
       default:
+        SerialDebug.println("Unknown command, cannot execute");
+        SerialDebug.print(" CMD=0x");
+        SerialDebug.println(c.cmd, HEX);
         c.success = false;
         break;
     }
