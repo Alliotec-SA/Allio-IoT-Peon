@@ -641,6 +641,7 @@ bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx) {
     if (!c.valid) return false;
 
     switch (c.cmd) {
+      case LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE:
       case LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER:
       case LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER:
         if (c.len != 0) return false;
@@ -681,7 +682,9 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
         turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService);
         c.success = true;
         break;
-
+      case LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE:
+        c.success = true; //Dont ned to do anything, just ack 'cause ack will send the state
+        break;
       default:
         SerialDebug.println("Unknown command, cannot execute");
         SerialDebug.print(" CMD=0x");
