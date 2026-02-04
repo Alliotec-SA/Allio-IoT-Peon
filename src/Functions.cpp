@@ -436,7 +436,7 @@ void sendLoRaWanCommandACK(uint8_t command, boolean executionCommandDone){
 }
 
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
-  uint8_t data[10];
+  uint8_t data[11];
   uint16_t value;
 
   data[0] = 0x00; // Sensor port
@@ -454,14 +454,15 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   data[5] = (uint8_t)(panel_voltage * 10.0);
   data[6] = (uint8_t)(battery_voltage * 10.0);
   data[7] = (uint8_t)(battery_alliotec * 10.0);
+  data[8] = deviceStateService.isElectrifierTurnedOn() ? 0x01 : 0x00;
 
-  uint16_t crc = calcCRC(data, 8);
-  data[8] = crc & 0xFF;
-  data[9] = (crc >> 8) & 0xFF;
+  uint16_t crc = calcCRC(data, 9);
+  data[9] = crc & 0xFF;
+  data[10] = (crc >> 8) & 0xFF;
   
 
 
-   char hexPayload[21]; // 10 bytes * 2 hex chars + null terminator
+   char hexPayload[23]; // 11 bytes * 2 hex chars + null terminator
   bytesToHexString(data, sizeof(data), hexPayload, sizeof(hexPayload));
   if(!lorawan.isJoined()){
       lorawan.join();
