@@ -133,7 +133,7 @@ void loop() {
   analyzer.update();
   deviceStateService.updateIsRunningAnalyzingProcess(analyzer.isAnalyzerRunning());
 
-  if(!analyzer.isAnalyzerRunning() && timerRequestCommandsHTTP.elapsed()){
+  if(!analyzer.isAnalyzerRunning() && deviceSettingsService.isEnabled() && timerRequestCommandsHTTP.elapsed()){
     SerialDebug.println("Requesting commands over HTTP");
     requestCommandsOverHTTP();
     timerRequestCommandsHTTP.reset();
@@ -166,11 +166,16 @@ void loop() {
     deviceStateService.updateLastValue(lastResult);
     
 
-    if(result.timeout){
-      SerialDebug.println("Timeout: "); SerialDebug.println(result.periodMs);
-    }else{
+    #ifndef DEBUG_SENT_DATA_EVEN_IF_TIMEOUT
+      if(result.timeout){
+        SerialDebug.println("Timeout: "); SerialDebug.println(result.periodMs);
+      }else{
+        hasGotValue = true;
+      }
+    #endif
+    #ifdef DEBUG_SENT_DATA_EVEN_IF_TIMEOUT
       hasGotValue = true;
-    }
+    #endif
 
     if(readingTries >= READING_TRIES){
       hasGotValue = true;

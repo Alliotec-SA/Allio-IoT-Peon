@@ -24,8 +24,14 @@ bool LoraWan::sendCommand(const char *cmd, const char *expected, uint16_t timeou
     }
     response[i] = '\0';
     if (strstr(response, expected)) return true;
-    if (strstr(response, "ERROR") || strstr(response, "AT_")) return false;
+    if (strstr(response, "ERROR") || strstr(response, "AT_")) {
+      SerialDebug.print("LoRaWAN command error response: ");
+      SerialDebug.println(response);
+      return false;
+    }
   }
+  SerialDebug.print("LoRaWAN command timeout response: ");
+  SerialDebug.println(response);
   return false;
 }
 
@@ -147,6 +153,9 @@ bool LoraWan::send(uint8_t port, const char *hexPayload, bool confirmed) {
 
   char sendCmd[256];
   snprintf(sendCmd, sizeof(sendCmd), "AT+SEND=%d:%s", port, hexPayload);
+
+  SerialDebug.print("LoRaWAN send command: ");
+  SerialDebug.println(sendCmd);
   return sendCommand(sendCmd, "+EVT:SEND CONFIRMED OK", 5000);
 }
 

@@ -416,7 +416,6 @@ bool getCommandsByHTTP(String host, String path, String token, String devEUI, vo
 }
 
 void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
-  char command[64];
   uint8_t data[10];
   uint16_t value;
 
@@ -447,8 +446,10 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   if(!lorawan.isJoined()){
       lorawan.join();
   }
-  lorawan.send(12, hexPayload, false);
-  SerialDebug.print(command);
+  bool sentState = lorawan.send(12, hexPayload, false);
+  SerialDebug.print("LoRaWAN send state: ");
+  SerialDebug.println(sentState ? "SUCCESS" : "FAILURE");
+  SerialDebug.print(hexPayload);
 
 }
 
