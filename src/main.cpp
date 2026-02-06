@@ -184,6 +184,16 @@ void loop() {
       }
     #endif
     #ifdef DEBUG_SENT_DATA_EVEN_IF_TIMEOUT
+      result.timeout = false; // For debug purposes, ignore timeout and send data anyway
+      result.ready = true;
+      result.periodMs = 3000;
+      result.vMin = 0.01;
+      result.vMax = 5.0;
+      lastResult.ready = true;
+      lastResult.batteryVoltage = 12.5;
+      lastResult.batteryPercent = 100;
+      lastResult.solarVoltage = 15.5;
+      lastResult.battery = 12.5;
       hasGotValue = true;
     #endif
 

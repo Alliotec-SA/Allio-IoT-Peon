@@ -215,7 +215,7 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   json += "\"panel_voltage\":" + String(panel_voltage, 2) + ",";
   json += "\"pulse_voltage\":" + String(pulse_voltage, 2) + ",";
   json += "\"pulse_time\":" + String(pulse_time) + ",";
-  json += "\"battery_alliotec\":" + String(battery_alliotec, 2);
+  json += "\"battery_alliotec\":" + String(battery_alliotec, 2)+ ",";
   json += "\"electrifier_should_be_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}";
 
@@ -288,6 +288,9 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   json += "\"response\":\"" + response + "\",";
   json += "\"electrifier_should_be_on\":" + String(deviceStateService.isElectrifierTurnedOn() ? "true" : "false");
   json += "}" ;
+
+  SerialDebug.println("[📤 Sending POST request]");
+  SerialDebug.println(json);
 
   // Create secure client and disable SSL validation
   std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
