@@ -116,6 +116,7 @@ void setup() {
   readingTries = 0;
   loraSent = false;
   jsonSent = false;
+  lorawan.enableATMode();
   lorawan.setLowPowerMode(false);
   timerRequestCommandsHTTP.start();
   timerLoraWanHeartbeat.start();

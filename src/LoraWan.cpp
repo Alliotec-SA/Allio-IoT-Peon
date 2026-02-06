@@ -9,6 +9,10 @@ void LoraWan::begin(unsigned long baud) {
   flushInput();
 }
 
+void LoraWan::enableATMode() {
+  sendCommand("AT+ATM"); // Enable AT mode for LoRaWAN
+}
+
 void LoraWan::flushInput() {
   while (_serial->available()) _serial->read();
 }

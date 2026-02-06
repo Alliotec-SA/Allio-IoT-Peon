@@ -11,6 +11,7 @@ class LoraWan {
   public:
     LoraWan(HardwareSerial &serial);
     void begin(unsigned long baud = 9600);
+    void enableATMode();
 
     // Bajo consumo
     bool sleep(unsigned long ms);
