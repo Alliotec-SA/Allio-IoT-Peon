@@ -10,6 +10,8 @@ SystemStatus::SystemStatus(AsyncWebServer* server, SecurityManager* securityMana
 void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
   AsyncJsonResponse* response = new AsyncJsonResponse(false, MAX_ESP_STATUS_SIZE);
   JsonObject root = response->getRoot();
+
+
 #ifdef ESP32
   root["esp_platform"] = "esp32";
   root["max_alloc_heap"] = ESP.getMaxAllocHeap();
@@ -27,6 +29,16 @@ void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
   root["sdk_version"] = ESP.getSdkVersion();
   root["flash_chip_size"] = ESP.getFlashChipSize();
   root["flash_chip_speed"] = ESP.getFlashChipSpeed();
+
+#if defined(FACTORY_DEVICE_MODEL) && defined(FACTORY_DEVICE_HARDWARE_VERSION)
+  root["esp_platform"] = String(FACTORY_DEVICE_MODEL) + "_" + String(FACTORY_DEVICE_HARDWARE_VERSION);
+#endif
+
+#ifdef FACTORY_DEVICE_FIRMWARE_VERSION
+  root["sdk_version"] = String(FACTORY_DEVICE_FIRMWARE_VERSION);
+#endif
+
+
 
 // TODO - Ideally this class will take an *FS and extract the file system information from there.
 // ESP8266 and ESP32 do not have feature parity in FS.h which currently makes that difficult.
