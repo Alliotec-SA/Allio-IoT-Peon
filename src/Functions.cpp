@@ -248,9 +248,11 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
 
   // Set headers and body
   https.addHeader("Content-Type", "application/json");
+  https.addHeader("Accept", "application/json");
+  https.addHeader("User-Agent", "PEON/1.0");
   https.addHeader("Authorization", "Bearer " + token);
 
-  SerialDebug.println("[📤 Sending POST request]");
+  SerialDebug.println("[📤 Sending SEND DATA POST request]");
   int httpCode = https.POST(json);
 
   if (httpCode > 0) {
@@ -259,7 +261,11 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
     SerialDebug.println("[📨 Server Response]:");
     SerialDebug.println(payload);
   } else {
-    SerialDebug.printf("❌ HTTP POST failed. code: %d  Error: %s\n",httpCode, https.errorToString(httpCode).c_str());
+     //Print error with enough information also include error string, payload response if exist and sended data
+    SerialDebug.printf("❌ HTTP SEND DATA POST failed. code: %d  Error: %s\n Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
+    //Print sent data
+    SerialDebug.println("\n [📤 Sent JSON Payload]:");
+    SerialDebug.println(json);
   }
 
   https.end();
@@ -289,7 +295,7 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   json += "\"electrifier_should_be_on\":" + String(deviceStateService.isElectrifierTurnedOn() ? "true" : "false");
   json += "}" ;
 
-  SerialDebug.println("[📤 Sending POST request]");
+  SerialDebug.println("[📤 Sending SEND ACK POST request]");
   SerialDebug.println(json);
 
   // Create secure client and disable SSL validation
@@ -321,9 +327,11 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
 
   // Set headers and body
   https.addHeader("Content-Type", "application/json");
+  https.addHeader("Accept", "application/json");
+  https.addHeader("User-Agent", "PEON/1.0");
   https.addHeader("Authorization", "Bearer " + token);
 
-  SerialDebug.println("[📤 Sending POST request]");
+  SerialDebug.println("[📤 Sending SEND ACK POST request]");
   int httpCode = https.POST(json);
 
   if (httpCode == 200) {
@@ -333,9 +341,9 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
     SerialDebug.println(payload);
   } else {
     //Print error with enough information also include error string, payload response if exist and sended data
-    SerialDebug.printf("❌ HTTP POST failed. code: %d  Error: %s\n Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
+    SerialDebug.printf("❌ HTTP SEND ACK POST failed. code: %d  Error: %s\n Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
     //Print sent data
-    SerialDebug.println("[📤 Sent JSON Payload]:");
+    SerialDebug.println("\n [📤 Sent JSON Payload]:");
     SerialDebug.println(json);
   }
 
@@ -365,7 +373,7 @@ bool getCommandsByHTTP(String host, String path, String token, String devEUI, vo
   HTTPClient https;
   String url = "https://" + host + path+"/action?devEUI=" + devEUI;
 
-  SerialDebug.print("[📡 Connecting to HTTPS URL] ");
+  SerialDebug.print("[📡 Connecting to HTTPS to GET Commands URL] ");
   SerialDebug.println(url);
 
   if (!https.begin(*client, url)) {
@@ -411,7 +419,10 @@ bool getCommandsByHTTP(String host, String path, String token, String devEUI, vo
     return true;
   } else {
     //Do serial debug error with enough information
-    SerialDebug.printf("❌ HTTP GET failed. code: %d  Error: %s\n Payload: %s" ,httpCode, https.errorToString(httpCode).c_str(), https.getString( ).c_str());
+    SerialDebug.printf("❌ HTTP GET Commands failed. code: %d  Error: %s\n Payload: %s" ,httpCode, https.errorToString(httpCode).c_str(), https.getString( ).c_str());
+    //Print Get Params devEUI
+    SerialDebug.print("[📡 GET Params] devEUI: ");
+    SerialDebug.println(devEUI);
    
     https.end();
     return false;
