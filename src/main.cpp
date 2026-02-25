@@ -62,6 +62,22 @@ void setup() {
   SerialDebug.begin(SERIAL_BAUD_RATE);
   
   SerialDebug.println("Working wakeup");
+  #ifdef FACTORY_DEVICE_MODEL
+    SerialDebug.print("Device Model: ");
+    SerialDebug.println(FACTORY_DEVICE_MODEL);
+  #endif
+  #ifdef FACTORY_DEVICE_HARDWARE_VERSION
+    SerialDebug.print("Device Hardware Version: ");
+    SerialDebug.println(FACTORY_DEVICE_HARDWARE_VERSION);
+  #endif
+  #ifdef FACTORY_DEVICE_FIRMWARE_VERSION
+    SerialDebug.print("Device Firmware Version: ");
+    SerialDebug.println(FACTORY_DEVICE_FIRMWARE_VERSION);
+  #endif
+  #ifdef FACTORY_DEVICE_MANUFACTURER
+    SerialDebug.print("Device Manufacturer: ");
+    SerialDebug.println(FACTORY_DEVICE_MANUFACTURER);
+  #endif
 
   // start the framework and demo project
   esp8266React.begin();

@@ -32,7 +32,7 @@ void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
 
 
 #if defined(FACTORY_DEVICE_MODEL) && defined(FACTORY_DEVICE_HARDWARE_VERSION) 
-  root["device_model"] = String(FACTORY_DEVICE_MODEL) + "_" + String(FACTORY_DEVICE_HARDWARE_VERSION); 
+  root["esp_platform"] = String(FACTORY_DEVICE_MODEL) + "_" + String(FACTORY_DEVICE_HARDWARE_VERSION); 
 #endif 
 
 #ifdef FACTORY_DEVICE_FIRMWARE_VERSION
