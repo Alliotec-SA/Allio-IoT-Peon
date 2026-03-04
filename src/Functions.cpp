@@ -194,20 +194,78 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   client.stop();
 }*/
 
-void sendJsonPost(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, boolean isElectrifierTurnedOn) {
-  const int httpsPort = 443;
-
-  SerialDebug.println("\n[🔌 Attempting connection...]");
-  SerialDebug.print("[ℹ️] Host: "); SerialDebug.println(host);
-  SerialDebug.print("[ℹ️] Port: "); SerialDebug.println(httpsPort);
-  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path);
-
+void sendHttpPostJson(String tag,String host, String path, String token, String devEUI, String json) {
   if (WiFi.status() != WL_CONNECTED) {
     SerialDebug.println("❌ ERROR: Not connected to WiFi.");
     return;
   }
 
-  // Build JSON payload
+  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
+  client->setInsecure();
+  client->setBufferSizes(512, 512); 
+
+  HTTPClient https;
+  String url = "https://" + host + path;
+
+  SerialDebug.print("============[ Attempting HTTPS connection for ");
+  SerialDebug.print(tag);
+  SerialDebug.println("]=============");
+
+  SerialDebug.print("\t Host: "); SerialDebug.println(host);
+  SerialDebug.print("\t Port: "); SerialDebug.println(443);
+  SerialDebug.print("\t Path: "); SerialDebug.println(path);
+  SerialDebug.print("\t Full URL: ");
+  SerialDebug.println(url);
+
+  if (!https.begin(*client, url)) {
+    SerialDebug.println("\t ERROR: HTTPS connection failed (begin).");
+
+    // Additional IP resolution diagnostics
+    IPAddress ip;
+    if (WiFi.hostByName(host.c_str(), ip)) {
+      SerialDebug.print("\t Resolved IP: ");
+      SerialDebug.println(ip); 
+    } else {
+      SerialDebug.println("\t ERROR: Failed to resolve DNS.");
+    }
+
+    SerialDebug.println("===================================");
+    return;
+  }
+
+  https.addHeader("Content-Type", "application/json");
+  https.addHeader("Accept", "application/json");
+  https.addHeader("User-Agent", "PEON/1.0");
+  https.addHeader("Authorization", "Bearer " + token);
+
+  int httpCode = https.POST(json);
+
+  if(httpCode == 200) {
+    SerialDebug.println("\t Server Response:");
+    SerialDebug.print("\t ");
+    SerialDebug.println(https.getString());
+  } else {
+    SerialDebug.println("\t ERROR: HTTP POST failed.");
+    SerialDebug.printf("\t ❌ HTTP POST failed. code: %d  Error: %s\n\t Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
+    //Print http headers for debug
+    SerialDebug.println("\t HTTP Headers:");
+    for (size_t i = 0; i < https.headers(); i++) {
+      SerialDebug.print("\t ");
+      SerialDebug.print(https.headerName(i));
+      SerialDebug.print(": ");
+      SerialDebug.println(https.header(i));
+    }
+  }
+  
+  SerialDebug.println("\n\t JSON Payload:");
+  SerialDebug.print("\t ");
+  SerialDebug.println(json);
+  https.end();
+  SerialDebug.println("===============================");
+}
+
+void sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, boolean isElectrifierTurnedOn) {
+
   String json = "{";
   json += "\"devEUI\":\"" + devEUI + "\",";
   json += "\"battery_voltage\":" + String(battery_voltage, 2) + ",";
@@ -219,74 +277,12 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   json += "\"electrifier_should_be_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}";
 
-  // Create secure client and disable SSL validation
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
-  client->setInsecure();
-  client->setBufferSizes(512, 512); 
-
-  HTTPClient https;
-  String url = "https://" + host + path;
-
-  SerialDebug.print("[📡 Connecting to HTTPS URL] ");
-  SerialDebug.println(url);
-
-  if (!https.begin(*client, url)) {
-    SerialDebug.println("❌ ERROR: HTTPS connection failed (begin).");
-
-    // Additional IP resolution diagnostics
-    IPAddress ip;
-    if (WiFi.hostByName(host.c_str(), ip)) {
-      SerialDebug.print("🧭 DNS resolved IP: ");
-      SerialDebug.println(ip);
-      SerialDebug.println("➡️  DNS resolution is OK.");
-    } else {
-      SerialDebug.println("❌ ERROR: Failed to resolve DNS.");
-    }
-
-    return;
-  }
-
-  // Set headers and body
-  https.addHeader("Content-Type", "application/json");
-  https.addHeader("Accept", "application/json");
-  https.addHeader("User-Agent", "PEON/1.0");
-  https.addHeader("Authorization", "Bearer " + token);
-
-  SerialDebug.println("[📤 Sending SEND DATA POST request]");
-  int httpCode = https.POST(json);
-
-  if (httpCode > 0) {
-    SerialDebug.printf("[✅ HTTP Response Code]: %d\n", httpCode);
-    String payload = https.getString();
-    SerialDebug.println("[📨 Server Response]:");
-    SerialDebug.println(payload);
-  } else {
-     //Print error with enough information also include error string, payload response if exist and sended data
-    SerialDebug.printf("❌ HTTP SEND DATA POST failed. code: %d  Error: %s\n Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
-    //Print sent data
-    SerialDebug.println("\n [📤 Sent JSON Payload]:");
-    SerialDebug.println(json);
-  }
-
-  https.end();
-  SerialDebug.println("[🔚 HTTPS session closed]");
+  sendHttpPostJson("SendDeviceData", host, path, token, devEUI, json);
 }
 
 
 void ackCommandPost(String host, String path, String token, String devEUI, String command, boolean executionCommandDone, String response) {
-  const int httpsPort = 443;
-
-  SerialDebug.println("\n[🔌 Attempting connection...]");
-  SerialDebug.print("[ℹ️] Host: "); SerialDebug.println(host);
-  SerialDebug.print("[ℹ️] Port: "); SerialDebug.println(httpsPort);
-  SerialDebug.print("[ℹ️] Path: "); SerialDebug.println(path);
-
-  if (WiFi.status() != WL_CONNECTED) {
-    SerialDebug.println("❌ ERROR: Not connected to WiFi.");
-    return;
-  }
-
-  // Build JSON payload
+  
   String json = "{";
   json += "\"devEUI\":\"" + devEUI + "\",";
   json += "\"action\":\"" + command + "\",";
@@ -295,60 +291,7 @@ void ackCommandPost(String host, String path, String token, String devEUI, Strin
   json += "\"electrifier_should_be_on\":" + String(deviceStateService.isElectrifierTurnedOn() ? "true" : "false");
   json += "}" ;
 
-  SerialDebug.println("[📤 Sending SEND ACK POST request]");
-  SerialDebug.println(json);
-
-  // Create secure client and disable SSL validation
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
-  client->setInsecure();
-  client->setBufferSizes(512, 512); 
-
-  HTTPClient https;
-  String url = "https://" + host + path + "/action" ;
-
-  SerialDebug.print("[📡 Connecting to HTTPS URL] ");
-  SerialDebug.println(url);
-
-  if (!https.begin(*client, url)) {
-    SerialDebug.println("❌ ERROR: HTTPS connection failed (begin).");
-
-    // Additional IP resolution diagnostics
-    IPAddress ip;
-    if (WiFi.hostByName(host.c_str(), ip)) {
-      SerialDebug.print("🧭 DNS resolved IP: ");
-      SerialDebug.println(ip);
-      SerialDebug.println("➡️  DNS resolution is OK.");
-    } else {
-      SerialDebug.println("❌ ERROR: Failed to resolve DNS.");
-    }
-
-    return;
-  }
-
-  // Set headers and body
-  https.addHeader("Content-Type", "application/json");
-  https.addHeader("Accept", "application/json");
-  https.addHeader("User-Agent", "PEON/1.0");
-  https.addHeader("Authorization", "Bearer " + token);
-
-  SerialDebug.println("[📤 Sending SEND ACK POST request]");
-  int httpCode = https.POST(json);
-
-  if (httpCode == 200) {
-    SerialDebug.printf("[✅ HTTP Response Code]: %d\n", httpCode);
-    String payload = https.getString();
-    SerialDebug.println("[📨 Server Response]:");
-    SerialDebug.println(payload);
-  } else {
-    //Print error with enough information also include error string, payload response if exist and sended data
-    SerialDebug.printf("❌ HTTP SEND ACK POST failed. code: %d  Error: %s\n Payload: %s",httpCode, https.errorToString(httpCode).c_str(), https.getString().c_str());
-    //Print sent data
-    SerialDebug.println("\n [📤 Sent JSON Payload]:");
-    SerialDebug.println(json);
-  }
-
-  https.end();
-  SerialDebug.println("[🔚 HTTPS session closed]");
+  sendHttpPostJson("AckCommand", host, path + "/action", token, devEUI, json);
 }
 
 // GET request for commands, calls callback for each command if HTTP 200

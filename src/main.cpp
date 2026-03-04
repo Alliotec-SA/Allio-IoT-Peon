@@ -242,7 +242,7 @@ void loop() {
 
   if(hasGotValue && !jsonSent && deviceSettingsService.isEnabled() && WiFi.isConnected()){
     SerialDebug.println("Sending By Wifi");
-    sendJsonPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, isElectrifierTurnedOn);
+    sendDeviceDataByHttp(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, isElectrifierTurnedOn);
     jsonSent = true;
   }
 
