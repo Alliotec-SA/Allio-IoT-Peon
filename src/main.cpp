@@ -166,17 +166,22 @@ void loop() {
     timerRequestCommandsHTTP.reset();
   }
 
+  // Check if we should start analyzing process from manual or remote activation
   if(!analyzer.isAnalyzerRunning() && deviceStateService.startAnalyzingProcess()){
     SerialDebug.println("Start Analyzer from Device State Service");
     analyzer.start();
   }
 
+  //Check if we should start analyzing process from interval for non ultra energy saving mode or in full wakeup for ultra energy saving mode
   if(!deviceStateService.isUltraEnergySavingMode()){
     if(!analyzer.isAnalyzerRunning() && (millis() - tlastAnalyzerRun) >= runAnalyzerIntervalMs){
       analyzer.start();
       tlastAnalyzerRun = millis();
       SerialDebug.println("Start analyzing due to interval");
     }
+  }else if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
+    SerialDebug.println("Start analyzing in ultra energy saving mode due to max time without client connection");
+    analyzer.start();
   }
   
   if (analyzer.isReady()) {
@@ -218,7 +223,12 @@ void loop() {
       hasGotValue = true;
       SerialDebug.println("Max reading attempts reached.");
     }
-      
+
+    if(result.timeout){
+      SerialDebug.println("Signal timeout detected.");
+    }
+
+         
       
     lastResult.signalPeriod = !result.timeout ? result.periodMs : 0;
     lastResult.signalVoltage = !result.timeout ? (int) getSignalVp(result.vMax) : 0;
@@ -234,16 +244,31 @@ void loop() {
 
   }
 
+  // Send data by LoRaWAN if we got value and LoRaWAN is enabled, if not enabled mark as sent to reset params in next cycle
   if(hasGotValue && !loraSent && deviceLoRaWanSettingsService.isEnabled()){
     SerialDebug.println("Sending By LoRa");
     sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
     loraSent = true;
+  }else if(hasGotValue && !deviceLoRaWanSettingsService.isEnabled()){
+    loraSent = true; //mark to reset params
   }
 
+  // Send data by HTTP if we got value and HTTP is enabled and WiFi is connected, if HTTP is not enabled mark as sent to reset params in next cycle, if WiFi is not connected start waiting for WiFi and send when it gets connected
   if(hasGotValue && !jsonSent && deviceSettingsService.isEnabled() && WiFi.isConnected()){
     SerialDebug.println("Sending By Wifi");
     sendDeviceDataByHttp(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, isElectrifierTurnedOn);
     jsonSent = true;
+  }else if(hasGotValue && !deviceSettingsService.isEnabled()){
+    jsonSent = true; //mark to reset params
+  }
+
+  // If we got value and sent by LoRaWAN and HTTP, we can reset state for next cycle 
+  if(hasGotValue && loraSent && jsonSent && !deviceStateService.isUltraEnergySavingMode()){
+      jsonSent = false;
+      loraSent = false;
+      readingTries = 0; // reset tries for next cycle
+      hasGotValue = false; // reset value for next cycle
+      SerialDebug.println("Cycle completed, reset state for next cycle");
   }
 
   
@@ -251,14 +276,7 @@ void loop() {
         goToSleep(t0);
   }
 
-  //This condition should go to end, so make sure if ready condition can be evaluated
-  if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
-      analyzer.start();
-      SerialDebug.print("Start analyzing: ");
-      SerialDebug.println(readingTries);
-      SerialDebug.flush();
-  }
-
+ 
   //In serial I received thes message format (+EVT:RX_C:-64:5:UNICAST:4:b076e8198c6454f77c56) that is
   //RX_C | RSSI | SNR | TYPE | FPORT | PAYLOAD_HEX   I need to detect when this frame is detected I get params values, but Once Serial available try to read and keep wainting until  end of frame comes from rak3172 or timeout and evaluate
   if(Serial.available()){
