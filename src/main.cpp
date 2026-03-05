@@ -179,7 +179,7 @@ void loop() {
       tlastAnalyzerRun = millis();
       SerialDebug.println("Start analyzing due to interval");
     }
-  }else if(!analyzer.isAnalyzerRunning() && readingTries < READING_TRIES && !hasGotValue){
+  }else if(!analyzer.isAnalyzerRunning() && !analyzer.isReady() && readingTries < READING_TRIES && !hasGotValue){
     SerialDebug.println("Start analyzing in ultra energy saving mode due to max time without client connection");
     analyzer.start();
   }

@@ -56,5 +56,5 @@ boolean DeviceStateService::isUltraEnergySavingMode(){
 
 
 void DeviceStateService::begin() {
-  //_fsPersistence.readFromFS();
+  _fsPersistence.readFromFS();
 }
