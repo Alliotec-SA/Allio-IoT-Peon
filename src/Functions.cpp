@@ -45,6 +45,18 @@ void turnOnElectrifier(boolean state, boolean* isTurnedOn, DeviceStateService* d
     digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW); // Turn off
     SerialDebug.println("Electrifier Turned OFF");
   }
+  notifyElectrifierStateChange(state);
+  
+}
+
+void notifyElectrifierStateChange(boolean isTurnedOn){
+  if(deviceSettingsService.isEnabled()){
+    ackCommandPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), "electrifier_state_change", true, isTurnedOn ? "ON" : "OFF");
+  }
+  
+  if(deviceLoRaWanSettingsService.isEnabled()){
+    sendLoRaWanCommandACK( isTurnedOn ? LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER : LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER, true);
+  } 
 }
 
 void resetWifiSettings() {
