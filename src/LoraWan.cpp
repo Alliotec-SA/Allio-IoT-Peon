@@ -143,6 +143,13 @@ bool LoraWan::setNetID(const char *id) {
   return sendCommand(cmd);
 }
 
+bool LoraWan::setATM(){
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+ATM");
+  return sendCommand(cmd);
+}
+
+
 // Join y modo
 bool LoraWan::setJoinMode(bool otaa) {
   char cmd[16];

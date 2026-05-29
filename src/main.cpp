@@ -292,7 +292,7 @@ void loop() {
 
     SerialDebug.print("LoRaWAN Serial Received: ");
     SerialDebug.println(line);
-    if(line.startsWith("+EVT:RX_C:")){
+    if(line.startsWith("+EVT:RX_")){
       processReceivedLoRaWanCommand(line);
     }
 

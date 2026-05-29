@@ -13,6 +13,8 @@ class LoraWan {
     void begin(unsigned long baud = 9600);
     void enableATMode();
 
+    bool setATM();
+
     // Bajo consumo
     bool sleep(unsigned long ms);
     bool setLowPowerMode(bool enabled);

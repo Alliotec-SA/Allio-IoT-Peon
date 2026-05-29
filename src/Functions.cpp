@@ -115,6 +115,7 @@ void goToSleep(unsigned long t0){
 }
 
 void setupLoRaWan(){
+  lorawan.setATM();
   lorawan.setJoinMode(deviceLoRaWanSettingsService.shouldUseOtaa());
   lorawan.setClassMode(deviceLoRaWanSettingsService.getClassMode().charAt(0)); // 'A', 'B' o 'C'
 
@@ -673,8 +674,9 @@ void processReceivedLoRaWanCommand(String line){
   line.trim(); // MUY IMPORTANTE
   // Example line: +EVT:RX_C:-64:5:UNICAST:4:b076e8198c6454f77c56
   //Get each part RX_C | RSSI | SNR | TYPE | FPORT | PAYLOAD_HEX
-  if (!line.startsWith("+EVT:RX_C:")) {
-    SerialDebug.println("Not RX_C");
+  // Now suports  +EVT:RX_?
+  if (!line.startsWith("+EVT:RX_")) {
+    SerialDebug.println("Not RX_?");
     return;
   }
 
