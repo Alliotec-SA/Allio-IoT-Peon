@@ -112,8 +112,9 @@ void setup() {
   }
   //end base ultra energy saving mode
 
-  // Explicitly cast the function pointer to resolve overload ambiguity
-  turnOnElectrifier(deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
+  // Sync pin/state on boot without ACK (no command origin)
+  isElectrifierTurnedOn = deviceStateService.isElectrifierTurnedOn();
+  turnOnElectrifier(isElectrifierTurnedOn, &isElectrifierTurnedOn, &deviceStateService, nullptr);
 
   // start the server
   server.begin();
@@ -149,9 +150,16 @@ void loop() {
     setupLoRaWan();
   }
 
-  if(isElectrifierTurnedOn != deviceStateService.isElectrifierTurnedOn()){
-    turnOnElectrifier(deviceStateService.isElectrifierTurnedOn(), &isElectrifierTurnedOn, &deviceStateService);
-  } 
+  if (deviceStateService.consumeElectrifierAckPending() ||
+      isElectrifierTurnedOn != deviceStateService.isElectrifierTurnedOn()) {
+    const boolean on = deviceStateService.isElectrifierTurnedOn();
+    const ElectrifierAckContext ack = {
+        on ? "turnOnDevice" : "turnOffDevice",
+        on ? LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER : LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER,
+        true,
+        on ? "ON" : "OFF"};
+    turnOnElectrifier(on, &isElectrifierTurnedOn, &deviceStateService, &ack);
+  }
 
   analyzer.update();
   deviceStateService.updateIsRunningAnalyzingProcess(analyzer.isAnalyzerRunning());

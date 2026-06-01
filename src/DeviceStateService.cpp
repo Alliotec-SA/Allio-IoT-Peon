@@ -52,8 +52,16 @@ boolean DeviceStateService::isUltraEnergySavingMode(){
     value = settings.isUltraEnergySavingMode;
   });
   return value;
-} 
+}
 
+boolean DeviceStateService::consumeElectrifierAckPending() {
+  boolean pending = false;
+  read([&](DeviceState& settings) {
+    pending = settings.electrifierAckPending;
+    settings.electrifierAckPending = false;
+  });
+  return pending;
+}
 
 void DeviceStateService::begin() {
   _fsPersistence.readFromFS();

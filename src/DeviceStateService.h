@@ -16,6 +16,8 @@ class DeviceState {
   boolean startAnalyzingProcess = false;
   boolean isTurnedOn = true;
   boolean isUltraEnergySavingMode = false;
+  /** Set when REST writes is_turned_on (even if value unchanged). */
+  boolean electrifierAckPending = false;
 
   static void read(DeviceState& settings, JsonObject& root) {
     root["signal_voltage"] = String(settings.lastResult.signalVoltage);
@@ -37,7 +39,10 @@ class DeviceState {
     if(settings.startAnalyzingProcess) {
         settings.isRunningAnalyzingProcess = true;
     }
-    settings.isTurnedOn = root["is_turned_on"] | settings.isTurnedOn;
+    if (root.containsKey("is_turned_on")) {
+      settings.isTurnedOn = root["is_turned_on"];
+      settings.electrifierAckPending = true;
+    }
     settings.isUltraEnergySavingMode = root["is_ultra_energy_saving_mode"] | settings.isUltraEnergySavingMode;
     return StateUpdateResult::CHANGED;
   }
@@ -52,6 +57,8 @@ class DeviceStateService : public StatefulService<DeviceState> {
   boolean isElectrifierTurnedOn();
   boolean startAnalyzingProcess();
   boolean isUltraEnergySavingMode();
+  /** True once after UI/REST sets is_turned_on; cleared on read. */
+  boolean consumeElectrifierAckPending();
   void begin();
 
  private:

@@ -35,28 +35,45 @@ bool hasClientConnected(){
 }
 
 
-void turnOnElectrifier(boolean state, boolean* isTurnedOn, DeviceStateService* deviceStateService){
-  *isTurnedOn = state;
-  deviceStateService->updateElectrifierState(state);
-  if(state){
-    digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH); // Turn on
-    SerialDebug.println("Electrifier Turned ON");
-  }else{    
-    digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW); // Turn off
-    SerialDebug.println("Electrifier Turned OFF");
+void ackCommandOnActiveChannels(const String &httpAction, uint8_t loraCmd, boolean executionCommandDone, const String &httpResponse) {
+  if (deviceSettingsService.isEnabled()) {
+    if (WiFi.status() == WL_CONNECTED) {
+      ackCommandPost(
+          deviceSettingsService.getServer(),
+          deviceSettingsService.getPath(),
+          deviceSettingsService.getToken(),
+          deviceSettingsService.getDevEUI(),
+          httpAction,
+          executionCommandDone,
+          httpResponse);
+    } else {
+      SerialDebug.println("ACK HTTP skipped: not connected to WiFi");
+    }
   }
-  notifyElectrifierStateChange(state);
-  
+
+  if (deviceLoRaWanSettingsService.isEnabled()) {
+    sendLoRaWanCommandACK(loraCmd, executionCommandDone);
+  }
 }
 
-void notifyElectrifierStateChange(boolean isTurnedOn){
-  if(deviceSettingsService.isEnabled()){
-    ackCommandPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), "electrifier_state_change", true, isTurnedOn ? "ON" : "OFF");
+void turnOnElectrifier(boolean state, boolean *isTurnedOn, DeviceStateService *deviceStateService, const ElectrifierAckContext *ack) {
+  *isTurnedOn = state;
+  deviceStateService->updateElectrifierState(state);
+  if (state) {
+    digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, HIGH);
+    SerialDebug.println("Electrifier Turned ON");
+  } else {
+    digitalWrite(PIN_TURN_ON_OFF_ELECTRIFIER, LOW);
+    SerialDebug.println("Electrifier Turned OFF");
   }
-  
-  if(deviceLoRaWanSettingsService.isEnabled()){
-    sendLoRaWanCommandACK( isTurnedOn ? LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER : LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER, true);
-  } 
+
+  if (ack != nullptr) {
+    ackCommandOnActiveChannels(
+        String(ack->httpAction),
+        ack->loraCmd,
+        ack->success,
+        String(ack->response));
+  }
 }
 
 void resetWifiSettings() {
@@ -481,33 +498,36 @@ void requestCommandsOverHTTP(){
 
 void callbackForHttpCommands(const String& command){
   SerialDebug.print("Received command via HTTP - Command: ");
-  SerialDebug.print(command);
-  boolean executionCommandDone = false;
-  String response = "";
+  SerialDebug.println(command);
 
-  if(command == "turnOnDevice"){
-    if(!deviceStateService.isUltraEnergySavingMode()){
+  if (command == "turnOnDevice") {
+    if (!deviceStateService.isUltraEnergySavingMode()) {
       SerialDebug.println("Turning ON electrifier via HTTP command");
-      turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService);
-      executionCommandDone = true;
-    }else{
-      response = "Ultra Energy Saving Mode is active, cannot turn ON electrifier";
-      SerialDebug.println("Cannot turn ON electrifier, Ultra Energy Saving Mode is active");
+      const ElectrifierAckContext ack = {"turnOnDevice", LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER, true, "ON"};
+      turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService, &ack);
+    } else {
+      const String response = "Ultra Energy Saving Mode is active, cannot turn ON electrifier";
+      SerialDebug.println(response);
+      ackCommandOnActiveChannels("turnOnDevice", LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER, false, response);
     }
-  }else if(command == "turnOffDevice"){
-    SerialDebug.println("Turning OFF electrifier via HTTP command");
-    turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService);
-    executionCommandDone = true;
-  }else if(command == "checkElectrifierState"){
-    SerialDebug.println("Checking electrifier state via HTTP command"); // Nothing to do, just ACK, ack will send the state
-    executionCommandDone = true;
-  }else{
-    response = "Unknown command received via HTTP";
-    SerialDebug.println("Unknown command received via HTTP");
+    return;
   }
 
-  ackCommandPost(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), command, executionCommandDone, response);
-  
+  if (command == "turnOffDevice") {
+    SerialDebug.println("Turning OFF electrifier via HTTP command");
+    const ElectrifierAckContext ack = {"turnOffDevice", LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER, true, "OFF"};
+    turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService, &ack);
+    return;
+  }
+
+  if (command == "checkElectrifierState") {
+    SerialDebug.println("Checking electrifier state via HTTP command");
+    ackCommandOnActiveChannels("checkElectrifierState", LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE, true, "");
+    return;
+  }
+
+  SerialDebug.println("Unknown command received via HTTP");
+  ackCommandOnActiveChannels(command, LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE, false, "Unknown command received via HTTP");
 }
 
 
@@ -646,27 +666,33 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
 
     switch (c.cmd) {
 
-      case LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER:
-        turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService);
+      case LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER: {
+        const ElectrifierAckContext ack = {"turnOnDevice", LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER, true, "ON"};
+        turnOnElectrifier(true, &isElectrifierTurnedOn, &deviceStateService, &ack);
         c.success = true;
+        break;
+      }
+
+      case LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER: {
+        const ElectrifierAckContext ack = {"turnOffDevice", LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER, true, "OFF"};
+        turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService, &ack);
+        c.success = true;
+        break;
+      }
+
+      case LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE:
+        c.success = true;
+        ackCommandOnActiveChannels("checkElectrifierState", LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE, true, "");
         break;
 
-      case LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER:
-        turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService);
-        c.success = true;
-        break;
-      case LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE:
-        c.success = true; //Dont ned to do anything, just ack 'cause ack will send the state
-        break;
       default:
         SerialDebug.println("Unknown command, cannot execute");
         SerialDebug.print(" CMD=0x");
         SerialDebug.println(c.cmd, HEX);
         c.success = false;
+        ackCommandOnActiveChannels("unknown", c.cmd, false, "Unknown LoRaWAN command");
         break;
     }
-
-    sendLoRaWanCommandACK(c.cmd, c.success);
   }
 }
 
