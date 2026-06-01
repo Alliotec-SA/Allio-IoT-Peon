@@ -670,7 +670,8 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
   }
 }
 
-void processReceivedLoRaWanCommand(String line){
+void processReceivedLoRaWanCommand(const String &lineIn){
+  String line = lineIn;
   line.trim(); // MUY IMPORTANTE
   // Example line: +EVT:RX_C:-64:5:UNICAST:4:b076e8198c6454f77c56
   //Get each part RX_C | RSSI | SNR | TYPE | FPORT | PAYLOAD_HEX
@@ -680,17 +681,32 @@ void processReceivedLoRaWanCommand(String line){
     return;
   }
 
-  // Eliminar prefijo
-  line.remove(0, 11); // strlen("+EVT:RX_C:")
+  // Campos tras el prefijo +EVT:RX_*:  (segundo ':' del mensaje)
+  int colons = 0;
+  int dataStart = -1;
+  for (unsigned int i = 0; i < line.length(); i++) {
+    if (line.charAt(i) == ':') {
+      colons++;
+      if (colons == 2) {
+        dataStart = static_cast<int>(i) + 1;
+        break;
+      }
+    }
+  }
+  if (dataStart < 0) {
+    SerialDebug.println("Invalid RX_ format");
+    return;
+  }
+  line = line.substring(dataStart);
 
-  // Separar campos
+  // Separar campos: RSSI | SNR | TYPE | FPORT | PAYLOAD_HEX
   int idx1 = line.indexOf(':');
   int idx2 = line.indexOf(':', idx1 + 1);
   int idx3 = line.indexOf(':', idx2 + 1);
   int idx4 = line.indexOf(':', idx3 + 1);
 
   if (idx1 == -1 || idx2 == -1 || idx3 == -1 || idx4 == -1) {
-    SerialDebug.println("Invalid RX_C format");
+    SerialDebug.println("Invalid RX_ field format");
     return;
   }
 
@@ -700,7 +716,7 @@ void processReceivedLoRaWanCommand(String line){
   int fport = atoi(line.substring(idx3 + 1, idx4).c_str());
   String payloadHex = line.substring(idx4 + 1);
 
-  SerialDebug.print("Parsed RX_C - RSSI: "); SerialDebug.print(rssi);
+  SerialDebug.print("Parsed RX_ - RSSI: "); SerialDebug.print(rssi);
   SerialDebug.print(", SNR: "); SerialDebug.print(snr);
   SerialDebug.print(", TYPE: "); SerialDebug.print(type);
   SerialDebug.print(", FPORT: "); SerialDebug.print(fport);

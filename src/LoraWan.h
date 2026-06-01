@@ -6,12 +6,18 @@
 
 //Doc for commands https://docs.rakwireless.com/product-categories/software-apis-and-libraries/rui3/at-command-manual/#lorawan-joining-and-sending
 
+typedef void (*LoraWanRxLineHandler)(const String &line);
 
 class LoraWan {
   public:
     LoraWan(HardwareSerial &serial);
     void begin(unsigned long baud = 9600);
     void enableATMode();
+
+    void setRxLineHandler(LoraWanRxLineHandler handler);
+    /** Lee serial, encola +EVT:RX_* y despacha cola. true si procesó al menos un RX. */
+    bool poll();
+    void processRxQueue();
 
     bool setATM();
 
@@ -62,12 +68,22 @@ class LoraWan {
 
   private:
     HardwareSerial *_serial;
+    LoraWanRxLineHandler _rxHandler;
+    bool _processingRx;
+    uint8_t _rxQueueCount;
+    String _rxQueue[LORAWAN_RX_QUEUE_DEPTH];
+    String _lineBuffer;
 
     bool sendCommand(const char *cmd);
     bool sendCommand(const char *cmd, const char *expected);
     bool sendCommand(const char *cmd, const char *expected, uint16_t timeout);
+    bool sendUplink(const char *cmd, bool confirmed, uint16_t timeout);
     bool getResponse(const char *cmd, char *response, size_t maxLen, uint16_t timeout = 1000);
     void flushInput();
+    void drainPendingSerial();
+    void feedSerial();
+    void ingestSerialByte(char c);
+    void enqueueRxLine(const String &line);
 };
 
 #endif

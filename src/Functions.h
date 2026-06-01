@@ -45,7 +45,7 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx);
 bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx);
 bool LoRaWanParseDownlink(const String& payloadHex, LoRaWanDownlinkContext* ctx);
 uint8_t hexToU8(const String& hex);
-void processReceivedLoRaWanCommand(String line);
+void processReceivedLoRaWanCommand(const String &line);
 
 
 #endif
