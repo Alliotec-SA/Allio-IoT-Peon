@@ -131,7 +131,6 @@ void setup() {
   // start the device settings service
   deviceSettingsService.begin();
   deviceLoRaWanSettingsService.begin();
-  deviceLoRaWanSettingsService.hasNewData(); // to avoid first glitch
   deviceStateService.begin();
 
   // Set base for ultra energy saving mode
@@ -178,18 +177,23 @@ void setup() {
   lorawan.enableATMode();
   lorawan.setRxLineHandler(processReceivedLoRaWanCommand);
   lorawan.setLowPowerMode(false);
+  syncLoRaWanFromFlash();
+  deviceLoRaWanSettingsService.hasNewData(); // FS load marks isNewData; boot sync already done
+
   timerRequestCommandsHTTP.start();
   timerLoraWanHeartbeat.start();
   timerLoraWanHeartbeat.setInterval(deviceLoRaWanSettingsService.getClassMode() == "C" ? LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECONDS * 1000 : LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_A_IN_SECONDS * 1000);
-  lorawan.sendHeartbeat(); // First heartbeat
+  if (deviceLoRaWanSettingsService.isEnabled()) {
+    lorawan.sendHeartbeat();
+  }
 }
 
 void loop() {
   esp8266React.loop();
   if(deviceLoRaWanSettingsService.hasNewData()){
-    SerialDebug.println("Starting setup lora device");
+    SerialDebug.println("LoRaWAN settings changed, syncing module");
     timerLoraWanHeartbeat.setInterval(deviceLoRaWanSettingsService.getClassMode() == "C" ? LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECONDS * 1000 : LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_A_IN_SECONDS * 1000);
-    setupLoRaWan();
+    syncLoRaWanFromFlash();
   }
 
   if (deviceStateService.consumeElectrifierAckPending() ||

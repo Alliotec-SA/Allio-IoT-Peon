@@ -33,6 +33,8 @@ void bytesToHexString(const uint8_t* data, size_t len, char* outHex, size_t outL
 void goToSleep(unsigned long t0);
 void resetWifiSettings();
 void setupLoRaWan();
+void applyLoRaWanFlashConfig();
+bool syncLoRaWanFromFlash();
 struct ElectrifierAckContext {
   const char *httpAction;
   uint8_t loraCmd;

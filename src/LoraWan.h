@@ -45,6 +45,15 @@ class LoraWan {
     bool join(uint8_t attempts = 8, uint8_t interval = 10, bool autoJoin = false);
     bool isJoined();
 
+    // Perfil radio
+    bool setBand(uint8_t band);
+    bool setChannelMask(const char *maskHex);
+    bool setDataRate(uint8_t dr);
+    bool setRx2Dr(uint8_t dr);
+    bool setRx2Freq(uint32_t freqHz);
+    bool setAdr(bool enabled);
+    bool setConfirmMode(bool enabled);
+
     // Envío y recepción
     bool sendHeartbeat();
     bool send(uint8_t port, const char *hexPayload, bool confirmed = false);
@@ -65,6 +74,13 @@ class LoraWan {
     bool getLowPowerMode(char *out, size_t len);
     bool getLowPowerLevel(char *out, size_t len);
     bool getClassMode(char *out, size_t len);
+    bool getBand(char *out, size_t len);
+    bool getChannelMask(char *out, size_t len);
+    bool getDataRate(char *out, size_t len);
+    bool getRx2Dr(char *out, size_t len);
+    bool getRx2Freq(char *out, size_t len);
+    bool getAdr(char *out, size_t len);
+    bool getConfirmMode(char *out, size_t len);
 
   private:
     HardwareSerial *_serial;

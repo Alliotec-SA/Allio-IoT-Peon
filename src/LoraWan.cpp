@@ -292,6 +292,48 @@ bool LoraWan::setJoinMode(bool otaa) {
   return sendCommand(cmd);
 }
 
+bool LoraWan::setBand(uint8_t band) {
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+BAND=%u", band);
+  return sendCommand(cmd);
+}
+
+bool LoraWan::setChannelMask(const char *maskHex) {
+  char cmd[24];
+  snprintf(cmd, sizeof(cmd), "AT+MASK=%s", maskHex);
+  return sendCommand(cmd);
+}
+
+bool LoraWan::setDataRate(uint8_t dr) {
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+DR=%u", dr);
+  return sendCommand(cmd);
+}
+
+bool LoraWan::setRx2Dr(uint8_t dr) {
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+RX2DR=%u", dr);
+  return sendCommand(cmd);
+}
+
+bool LoraWan::setRx2Freq(uint32_t freqHz) {
+  char cmd[32];
+  snprintf(cmd, sizeof(cmd), "AT+RX2FQ=%u", freqHz);
+  return sendCommand(cmd);
+}
+
+bool LoraWan::setAdr(bool enabled) {
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+ADR=%d", enabled ? 1 : 0);
+  return sendCommand(cmd);
+}
+
+bool LoraWan::setConfirmMode(bool enabled) {
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "AT+CFM=%d", enabled ? 1 : 0);
+  return sendCommand(cmd);
+}
+
 bool LoraWan::join(uint8_t attempts, uint8_t interval, bool autoJoin) {
   char cmd[32];
   snprintf(cmd, sizeof(cmd), "AT+JOIN=1:%d:%d:%d", autoJoin ? 1 : 0, interval, attempts);
@@ -342,3 +384,10 @@ bool LoraWan::getConfirmStatus(char *out, size_t len) { return getResponse("AT+C
 bool LoraWan::getLowPowerMode(char *out, size_t len)  { return getResponse("AT+LPM=?", out, len); }
 bool LoraWan::getLowPowerLevel(char *out, size_t len) { return getResponse("AT+LPMLVL=?", out, len); }
 bool LoraWan::getClassMode(char *out, size_t len)     { return getResponse("AT+CLASS=?", out, len); }
+bool LoraWan::getBand(char *out, size_t len)        { return getResponse("AT+BAND=?", out, len); }
+bool LoraWan::getChannelMask(char *out, size_t len)   { return getResponse("AT+MASK=?", out, len); }
+bool LoraWan::getDataRate(char *out, size_t len)      { return getResponse("AT+DR=?", out, len); }
+bool LoraWan::getRx2Dr(char *out, size_t len)         { return getResponse("AT+RX2DR=?", out, len); }
+bool LoraWan::getRx2Freq(char *out, size_t len)       { return getResponse("AT+RX2FQ=?", out, len); }
+bool LoraWan::getAdr(char *out, size_t len)           { return getResponse("AT+ADR=?", out, len); }
+bool LoraWan::getConfirmMode(char *out, size_t len)   { return getResponse("AT+CFM=?", out, len); }

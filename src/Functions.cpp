@@ -131,21 +131,336 @@ void goToSleep(unsigned long t0){
   ESP.deepSleep((uint32_t)sleepUs, WAKE_RF_DEFAULT); // o WAKE_RF_DISABLED
 }
 
-void setupLoRaWan(){
-  lorawan.setATM();
-  lorawan.setJoinMode(deviceLoRaWanSettingsService.shouldUseOtaa());
-  lorawan.setClassMode(deviceLoRaWanSettingsService.getClassMode().charAt(0)); // 'A', 'B' o 'C'
+static bool loraWanBandUsesChannelMask(uint8_t band) {
+  return band == 1 || band == 5 || band == 6;
+}
 
-  if(deviceLoRaWanSettingsService.shouldUseOtaa()){
-    lorawan.setDevEUI(deviceLoRaWanSettingsService.getDevEUI().c_str());
-    lorawan.setAppEUI(deviceLoRaWanSettingsService.getAppEUI().c_str());
-    lorawan.setAppKey(deviceLoRaWanSettingsService.getAppKey().c_str());
-  }else{
-    lorawan.setDevAddr(deviceLoRaWanSettingsService.getDevAddress().c_str());
-    lorawan.setAppSKey(deviceLoRaWanSettingsService.getAppsKey().c_str());
-    lorawan.setNwkSKey(deviceLoRaWanSettingsService.getNetsKey().c_str());
+static String subBandToChannelMaskHex(uint8_t subBand) {
+  static const uint16_t masks[] = {
+      0x0000, 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100};
+  if (subBand == 0 || subBand > 9) {
+    return "0000";
   }
-};
+  char buf[5];
+  snprintf(buf, sizeof(buf), "%04X", masks[subBand]);
+  return String(buf);
+}
+
+static String normalizeHexString(const String &value) {
+  String out;
+  out.reserve(value.length());
+  for (size_t i = 0; i < value.length(); i++) {
+    char c = value.charAt(i);
+    if (c == ':' || c == ' ' || c == '\r' || c == '\n') {
+      continue;
+    }
+    if (c >= 'a' && c <= 'f') {
+      c = static_cast<char>(c - 32);
+    }
+    out += c;
+  }
+  return out;
+}
+
+static String normalizeMaskHex(const String &value) {
+  String hex = normalizeHexString(value);
+  while (hex.length() < 4) {
+    hex = "0" + hex;
+  }
+  if (hex.length() > 4) {
+    hex = hex.substring(hex.length() - 4);
+  }
+  return hex;
+}
+
+static bool parseAtIntValue(const char *response, int &out) {
+  if (response == nullptr || response[0] == '\0') {
+    return false;
+  }
+  const char *p = strrchr(response, '=');
+  if (p == nullptr) {
+    p = strrchr(response, ':');
+  }
+  if (p == nullptr) {
+    return false;
+  }
+  p++;
+  while (*p == ' ') {
+    p++;
+  }
+  char *end = nullptr;
+  long value = strtol(p, &end, 10);
+  if (end == p) {
+    return false;
+  }
+  out = static_cast<int>(value);
+  return true;
+}
+
+static String parseAtHexValue(const char *response) {
+  if (response == nullptr || response[0] == '\0') {
+    return "";
+  }
+  const char *p = strrchr(response, '=');
+  if (p == nullptr) {
+    p = strrchr(response, ':');
+  }
+  if (p == nullptr) {
+    return normalizeHexString(String(response));
+  }
+  p++;
+  while (*p == ' ') {
+    p++;
+  }
+  return normalizeHexString(String(p));
+}
+
+static char parseAtClassValue(const char *response) {
+  if (response == nullptr) {
+    return '\0';
+  }
+  for (const char *p = response; *p != '\0'; p++) {
+    if (*p == 'A' || *p == 'B' || *p == 'C') {
+      return *p;
+    }
+  }
+  return '\0';
+}
+
+static bool readRakBand(char *out, size_t len) { return lorawan.getBand(out, len); }
+static bool readRakMask(char *out, size_t len) { return lorawan.getChannelMask(out, len); }
+static bool readRakJoinMode(char *out, size_t len) { return lorawan.getJoinMode(out, len); }
+static bool readRakClass(char *out, size_t len) { return lorawan.getClassMode(out, len); }
+static bool readRakDevEui(char *out, size_t len) { return lorawan.getDevEUI(out, len); }
+static bool readRakAppEui(char *out, size_t len) { return lorawan.getAppEUI(out, len); }
+static bool readRakAppKey(char *out, size_t len) { return lorawan.getAppKey(out, len); }
+static bool readRakDevAddr(char *out, size_t len) { return lorawan.getDevAddr(out, len); }
+static bool readRakAppSKey(char *out, size_t len) { return lorawan.getAppSKey(out, len); }
+static bool readRakNwkSKey(char *out, size_t len) { return lorawan.getNwkSKey(out, len); }
+static bool readRakRx2Dr(char *out, size_t len) { return lorawan.getRx2Dr(out, len); }
+static bool readRakRx2Freq(char *out, size_t len) { return lorawan.getRx2Freq(out, len); }
+static bool readRakAdr(char *out, size_t len) { return lorawan.getAdr(out, len); }
+static bool readRakDr(char *out, size_t len) { return lorawan.getDataRate(out, len); }
+static bool readRakCfm(char *out, size_t len) { return lorawan.getConfirmMode(out, len); }
+static bool readRakLpm(char *out, size_t len) { return lorawan.getLowPowerMode(out, len); }
+
+static bool compareIntField(const char *name, int expected, bool (*getter)(char *, size_t), bool &mismatch, bool joinCritical) {
+  char response[LORAWAN_RESPONSE_BUFFER] = {0};
+  if (!getter(response, sizeof(response))) {
+    SerialDebug.print("LoRaWAN sync: failed to read ");
+    SerialDebug.println(name);
+    mismatch = true;
+    return joinCritical;
+  }
+  int actual = -1;
+  if (!parseAtIntValue(response, actual)) {
+    SerialDebug.print("LoRaWAN sync: failed to parse ");
+    SerialDebug.println(name);
+    mismatch = true;
+    return joinCritical;
+  }
+  if (actual != expected) {
+    SerialDebug.print("LoRaWAN sync mismatch ");
+    SerialDebug.print(name);
+    SerialDebug.print(": expected=");
+    SerialDebug.print(expected);
+    SerialDebug.print(" actual=");
+    SerialDebug.println(actual);
+    mismatch = true;
+    return joinCritical;
+  }
+  return false;
+}
+
+static bool compareHexField(const char *name, const String &expected, bool (*getter)(char *, size_t), bool &mismatch, bool joinCritical) {
+  if (expected.length() == 0) {
+    return false;
+  }
+  char response[LORAWAN_RESPONSE_BUFFER] = {0};
+  if (!getter(response, sizeof(response))) {
+    SerialDebug.print("LoRaWAN sync: failed to read ");
+    SerialDebug.println(name);
+    mismatch = true;
+    return joinCritical;
+  }
+  String actual = parseAtHexValue(response);
+  if (actual != normalizeHexString(expected)) {
+    SerialDebug.print("LoRaWAN sync mismatch ");
+    SerialDebug.print(name);
+    SerialDebug.print(": expected=");
+    SerialDebug.print(expected);
+    SerialDebug.print(" actual=");
+    SerialDebug.println(actual);
+    mismatch = true;
+    return joinCritical;
+  }
+  return false;
+}
+
+static bool compareClassField(const char *name, char expected, bool (*getter)(char *, size_t), bool &mismatch) {
+  char response[LORAWAN_RESPONSE_BUFFER] = {0};
+  if (!getter(response, sizeof(response))) {
+    SerialDebug.print("LoRaWAN sync: failed to read ");
+    SerialDebug.println(name);
+    mismatch = true;
+    return false;
+  }
+  char actual = parseAtClassValue(response);
+  if (actual != expected) {
+    SerialDebug.print("LoRaWAN sync mismatch ");
+    SerialDebug.print(name);
+    SerialDebug.print(": expected=");
+    SerialDebug.print(expected);
+    SerialDebug.print(" actual=");
+    SerialDebug.println(actual);
+    mismatch = true;
+  }
+  return false;
+}
+
+void applyLoRaWanFlashConfig() {
+  const uint8_t band = deviceLoRaWanSettingsService.getBand();
+  const bool useOtaa = deviceLoRaWanSettingsService.shouldUseOtaa();
+  const String classMode = deviceLoRaWanSettingsService.getClassMode();
+
+  lorawan.setATM();
+  lorawan.setBand(band);
+  if (loraWanBandUsesChannelMask(band)) {
+    const String maskHex = subBandToChannelMaskHex(deviceLoRaWanSettingsService.getSubBand());
+    lorawan.setChannelMask(maskHex.c_str());
+  }
+  lorawan.setJoinMode(useOtaa);
+  if (classMode.length() > 0) {
+    lorawan.setClassMode(classMode.charAt(0));
+  }
+
+  if (useOtaa) {
+    const String devEui = deviceLoRaWanSettingsService.getDevEUI();
+    const String appEui = deviceLoRaWanSettingsService.getAppEUI();
+    const String appKey = deviceLoRaWanSettingsService.getAppKey();
+    if (devEui.length() > 0) {
+      lorawan.setDevEUI(devEui.c_str());
+    }
+    if (appEui.length() > 0) {
+      lorawan.setAppEUI(appEui.c_str());
+    }
+    if (appKey.length() > 0) {
+      lorawan.setAppKey(appKey.c_str());
+    }
+  } else {
+    const String devAddr = deviceLoRaWanSettingsService.getDevAddress();
+    const String appSKey = deviceLoRaWanSettingsService.getAppsKey();
+    const String nwkSKey = deviceLoRaWanSettingsService.getNetsKey();
+    if (devAddr.length() > 0) {
+      lorawan.setDevAddr(devAddr.c_str());
+    }
+    if (appSKey.length() > 0) {
+      lorawan.setAppSKey(appSKey.c_str());
+    }
+    if (nwkSKey.length() > 0) {
+      lorawan.setNwkSKey(nwkSKey.c_str());
+    }
+  }
+
+  lorawan.setRx2Dr(deviceLoRaWanSettingsService.getRx2Dr());
+  lorawan.setRx2Freq(deviceLoRaWanSettingsService.getRx2FreqHz());
+  lorawan.setAdr(deviceLoRaWanSettingsService.getAdr());
+  if (!deviceLoRaWanSettingsService.getAdr()) {
+    lorawan.setDataRate(deviceLoRaWanSettingsService.getDataRate());
+  }
+  lorawan.setConfirmMode(deviceLoRaWanSettingsService.getConfirmMode());
+  lorawan.setLowPowerMode(false);
+}
+
+void setupLoRaWan() {
+  applyLoRaWanFlashConfig();
+}
+
+bool syncLoRaWanFromFlash() {
+  bool mismatch = false;
+  bool requiresJoin = false;
+
+  const uint8_t band = deviceLoRaWanSettingsService.getBand();
+  const bool useOtaa = deviceLoRaWanSettingsService.shouldUseOtaa();
+  const String classMode = deviceLoRaWanSettingsService.getClassMode();
+  const char expectedClass = classMode.length() > 0 ? classMode.charAt(0) : 'A';
+
+  if (compareIntField("BAND", band, readRakBand, mismatch, true)) {
+    requiresJoin = true;
+  }
+
+  if (loraWanBandUsesChannelMask(band)) {
+    const String expectedMask = subBandToChannelMaskHex(deviceLoRaWanSettingsService.getSubBand());
+    char response[LORAWAN_RESPONSE_BUFFER] = {0};
+    if (!readRakMask(response, sizeof(response))) {
+      SerialDebug.println("LoRaWAN sync: failed to read MASK");
+      mismatch = true;
+      requiresJoin = true;
+    } else {
+      const String actualMask = normalizeMaskHex(parseAtHexValue(response));
+      if (actualMask != expectedMask) {
+        SerialDebug.print("LoRaWAN sync mismatch MASK: expected=");
+        SerialDebug.print(expectedMask);
+        SerialDebug.print(" actual=");
+        SerialDebug.println(actualMask);
+        mismatch = true;
+        requiresJoin = true;
+      }
+    }
+  }
+
+  if (compareIntField("NJM", useOtaa ? 1 : 0, readRakJoinMode, mismatch, true)) {
+    requiresJoin = true;
+  }
+  compareClassField("CLASS", expectedClass, readRakClass, mismatch);
+
+  if (useOtaa) {
+    if (compareHexField("DEVEUI", deviceLoRaWanSettingsService.getDevEUI(), readRakDevEui, mismatch, true)) {
+      requiresJoin = true;
+    }
+    if (compareHexField("APPEUI", deviceLoRaWanSettingsService.getAppEUI(), readRakAppEui, mismatch, true)) {
+      requiresJoin = true;
+    }
+    if (compareHexField("APPKEY", deviceLoRaWanSettingsService.getAppKey(), readRakAppKey, mismatch, true)) {
+      requiresJoin = true;
+    }
+  } else {
+    if (compareHexField("DEVADDR", deviceLoRaWanSettingsService.getDevAddress(), readRakDevAddr, mismatch, true)) {
+      requiresJoin = true;
+    }
+    if (compareHexField("APPSKEY", deviceLoRaWanSettingsService.getAppsKey(), readRakAppSKey, mismatch, true)) {
+      requiresJoin = true;
+    }
+    if (compareHexField("NWKSKEY", deviceLoRaWanSettingsService.getNetsKey(), readRakNwkSKey, mismatch, true)) {
+      requiresJoin = true;
+    }
+  }
+
+  compareIntField("RX2DR", deviceLoRaWanSettingsService.getRx2Dr(), readRakRx2Dr, mismatch, false);
+  compareIntField("RX2FQ", static_cast<int>(deviceLoRaWanSettingsService.getRx2FreqHz()), readRakRx2Freq, mismatch, false);
+
+  const bool expectedAdr = deviceLoRaWanSettingsService.getAdr();
+  compareIntField("ADR", expectedAdr ? 1 : 0, readRakAdr, mismatch, false);
+  if (!expectedAdr) {
+    compareIntField("DR", deviceLoRaWanSettingsService.getDataRate(), readRakDr, mismatch, false);
+  }
+  compareIntField("CFM", deviceLoRaWanSettingsService.getConfirmMode() ? 1 : 0, readRakCfm, mismatch, false);
+  compareIntField("LPM", 0, readRakLpm, mismatch, false);
+
+  if (mismatch) {
+    SerialDebug.println("LoRaWAN sync: applying flash configuration to module");
+    applyLoRaWanFlashConfig();
+  } else {
+    SerialDebug.println("LoRaWAN sync: OK");
+  }
+
+  if (deviceLoRaWanSettingsService.isEnabled() && useOtaa && (requiresJoin || !lorawan.isJoined())) {
+    SerialDebug.println("LoRaWAN sync: joining network (OTAA)");
+    lorawan.join();
+  }
+
+  return true;
+}
 
 void testBoardVoltageElement(Stream &port){
   port.print("Battery Voltage: "); 

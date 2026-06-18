@@ -101,6 +101,62 @@ String DeviceLoRaWanSettingsService::getClassMode() {
   return value;
 }
 
+uint8_t DeviceLoRaWanSettingsService::getBand() {
+  uint8_t value = LORAWAN_DEFAULT_BAND;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.band;
+  });
+  return value;
+}
+
+uint8_t DeviceLoRaWanSettingsService::getSubBand() {
+  uint8_t value = LORAWAN_DEFAULT_SUB_BAND;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.subBand;
+  });
+  return value;
+}
+
+uint8_t DeviceLoRaWanSettingsService::getDataRate() {
+  uint8_t value = LORAWAN_DEFAULT_DATA_RATE;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.dataRate;
+  });
+  return value;
+}
+
+uint8_t DeviceLoRaWanSettingsService::getRx2Dr() {
+  uint8_t value = LORAWAN_DEFAULT_RX2_DR;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.rx2Dr;
+  });
+  return value;
+}
+
+uint32_t DeviceLoRaWanSettingsService::getRx2FreqHz() {
+  uint32_t value = LORAWAN_DEFAULT_RX2_FREQ_HZ;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.rx2FreqHz;
+  });
+  return value;
+}
+
+bool DeviceLoRaWanSettingsService::getAdr() {
+  bool value = LORAWAN_DEFAULT_ADR;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.adr;
+  });
+  return value;
+}
+
+bool DeviceLoRaWanSettingsService::getConfirmMode() {
+  bool value = LORAWAN_DEFAULT_CONFIRM_MODE;
+  read([&](DeviceLoRaWanSettings& settings) {
+    value = settings.confirmMode;
+  });
+  return value;
+}
+
 void DeviceLoRaWanSettingsService::begin() {
   _fsPersistence.readFromFS();
 }

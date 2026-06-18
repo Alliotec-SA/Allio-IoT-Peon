@@ -23,87 +23,57 @@ class DeviceLoRaWanSettings {
   String devAddress;
   String appsKey;
   String netsKey;
-  String classMode;
-  bool use_otaa;
-  bool enabled;
+  bool use_otaa = LORAWAN_DEFAULT_USE_OTAA;
+  bool enabled = true;
   bool isNewData = false;
+  uint8_t band = LORAWAN_DEFAULT_BAND;
+  uint8_t subBand = LORAWAN_DEFAULT_SUB_BAND;
+  uint8_t dataRate = LORAWAN_DEFAULT_DATA_RATE;
+  uint8_t rx2Dr = LORAWAN_DEFAULT_RX2_DR;
+  uint32_t rx2FreqHz = LORAWAN_DEFAULT_RX2_FREQ_HZ;
+  bool adr = LORAWAN_DEFAULT_ADR;
+  bool confirmMode = LORAWAN_DEFAULT_CONFIRM_MODE;
+  String classMode = LORAWAN_DEFAULT_CLASS_MODE;
 
   static void read(DeviceLoRaWanSettings& settings, JsonObject& root) {
-    //char buffer[64];
-
-    /*if (lorawan.getDevEUI(buffer, sizeof(buffer))) {
-      settings.devEUI = String(buffer);
-    }*/
     root["dev_eui"] = settings.devEUI;
-
-    /*if (lorawan.getAppEUI(buffer, sizeof(buffer))) {
-      settings.appEUI = String(buffer);
-    }*/
     root["app_eui"] = settings.appEUI;
-
-    /*if (lorawan.getAppKey(buffer, sizeof(buffer))) {
-      settings.appKey = String(buffer);
-    }*/
     root["app_key"] = settings.appKey;
-
-    /*if (lorawan.getNetID(buffer, sizeof(buffer))) {
-      settings.netKey = String(buffer);
-    }*/
     root["net_key"] = settings.netKey;
-
-    /*if (lorawan.getDevAddr(buffer, sizeof(buffer))) {
-      settings.devAddress = String(buffer);
-    }*/
     root["dev_address"] = settings.devAddress;
-
-    /*if (lorawan.getAppSKey(buffer, sizeof(buffer))) {
-      settings.appsKey = String(buffer);
-    }*/
     root["apps_key"] = settings.appsKey;
-
-    /*if (lorawan.getNwkSKey(buffer, sizeof(buffer))) {
-      settings.netsKey = String(buffer);
-    }*/
     root["nets_key"] = settings.netsKey;
-
-    // Modo OTAA (leer AT+NJM=? y extraer valor)
-    /*if (lorawan.getJoinMode(buffer, sizeof(buffer))) {
-      settings.use_otaa = strstr(buffer, "=1") != nullptr;
-    }*/
     root["use_otaa"] = settings.use_otaa;
     root["class_mode"] = settings.classMode;
-
     root["enabled"] = settings.enabled;
+    root["band"] = settings.band;
+    root["sub_band"] = settings.subBand;
+    root["data_rate"] = settings.dataRate;
+    root["rx2_dr"] = settings.rx2Dr;
+    root["rx2_freq_hz"] = settings.rx2FreqHz;
+    root["adr"] = settings.adr;
+    root["confirm_mode"] = settings.confirmMode;
   }
 
   static StateUpdateResult update(JsonObject& root, DeviceLoRaWanSettings& settings) {
     settings.devEUI = root["dev_eui"] | SettingValue::format("");
-    //lorawan.setDevEUI(settings.devEUI.c_str());
-
     settings.appEUI = root["app_eui"] | SettingValue::format("");
-    //lorawan.setAppEUI(settings.appEUI.c_str());
-
     settings.appKey = root["app_key"] | SettingValue::format("");
-    //lorawan.setAppKey(settings.appKey.c_str());
-
     settings.netKey = root["net_key"] | SettingValue::format("");
-    //lorawan.setNetID(settings.netKey.c_str());
-
     settings.devAddress = root["dev_address"] | SettingValue::format("");
-    //lorawan.setDevAddr(settings.devAddress.c_str());
-
     settings.appsKey = root["apps_key"] | SettingValue::format("");
-    //lorawan.setAppSKey(settings.appsKey.c_str());
-
     settings.netsKey = root["nets_key"] | SettingValue::format("");
-    //lorawan.setNwkSKey(settings.netsKey.c_str());
-
-    settings.use_otaa = root["use_otaa"] | false;
-    //lorawan.setJoinMode(settings.use_otaa);
-
+    settings.use_otaa = root["use_otaa"] | LORAWAN_DEFAULT_USE_OTAA;
     settings.enabled = root["enabled"] | true;
+    settings.classMode = root["class_mode"] | SettingValue::format(LORAWAN_DEFAULT_CLASS_MODE);
+    settings.band = root["band"] | LORAWAN_DEFAULT_BAND;
+    settings.subBand = root["sub_band"] | LORAWAN_DEFAULT_SUB_BAND;
+    settings.dataRate = root["data_rate"] | LORAWAN_DEFAULT_DATA_RATE;
+    settings.rx2Dr = root["rx2_dr"] | LORAWAN_DEFAULT_RX2_DR;
+    settings.rx2FreqHz = root["rx2_freq_hz"] | LORAWAN_DEFAULT_RX2_FREQ_HZ;
+    settings.adr = root["adr"] | LORAWAN_DEFAULT_ADR;
+    settings.confirmMode = root["confirm_mode"] | LORAWAN_DEFAULT_CONFIRM_MODE;
     settings.isNewData = true;
-    settings.classMode = root["class_mode"] | SettingValue::format("A");
 
     return StateUpdateResult::CHANGED;
   }
@@ -120,6 +90,13 @@ class DeviceLoRaWanSettingsService : public StatefulService<DeviceLoRaWanSetting
   String getAppsKey();
   String getNetsKey();
   String getClassMode();
+  uint8_t getBand();
+  uint8_t getSubBand();
+  uint8_t getDataRate();
+  uint8_t getRx2Dr();
+  uint32_t getRx2FreqHz();
+  bool getAdr();
+  bool getConfirmMode();
   bool hasNewData();
   bool shouldUseOtaa();
   bool isEnabled();
