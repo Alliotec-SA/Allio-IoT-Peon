@@ -60,8 +60,8 @@ void setup() {
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
   SerialDebug.begin(SERIAL_BAUD_RATE);
-  
   SerialDebug.println("Working wakeup");
+
   #ifdef FACTORY_DEVICE_MODEL
     SerialDebug.print("Device Model: ");
     SerialDebug.println(FACTORY_DEVICE_MODEL);
@@ -78,6 +78,48 @@ void setup() {
     SerialDebug.print("Device Manufacturer: ");
     SerialDebug.println(FACTORY_DEVICE_MANUFACTURER);
   #endif
+
+  SerialDebug.println("Sending initial AT commands to wake up  LoRaWAN module from invalid state if necessary");
+  pinMode(PIN_RAK_RESET, OUTPUT);
+  digitalWrite(PIN_RAK_RESET, LOW);
+  delay(100);
+  digitalWrite(PIN_RAK_RESET, HIGH);
+  delay(100);
+  //Add un while to wait for response to avoid sending AT commands too fast before the module is ready
+  // Once we get a response, we can break the loop and continue with the setup
+  uint8_t atCommandTries = 0;
+  bool atCommandSuccess = false;
+  while(atCommandTries < 5 && !atCommandSuccess) {
+    Serial.println("AT");
+        
+    uint32_t startTime = millis();
+    while(!Serial.available()) {
+      if(millis() - startTime > 3000) { // Wait for 3 seconds for a response
+        SerialDebug.println("No response, retrying...");
+        atCommandTries++;
+        break;
+      }
+    }
+
+    if(Serial.available()) {
+      SerialDebug.print("Received response: ");
+      SerialDebug.println(Serial.read());
+      atCommandSuccess = true;
+    }
+  }
+
+  while(Serial.available()) {
+    SerialDebug.print(Serial.read());
+  }
+
+  if(atCommandSuccess) {
+    SerialDebug.println("LoRaWAN module is responsive");
+  } else {
+    SerialDebug.println("Failed to wake up LoRaWAN module after multiple attempts");
+  }
+
+  SerialDebug.flush();
+
 
   // start the framework and demo project
   esp8266React.begin();
