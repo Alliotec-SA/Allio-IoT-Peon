@@ -43,8 +43,29 @@ export const DEVICE_LORAWAN_SETTINGS_VALIDATOR = new Schema({
     use_otaa: {
         required: false, message: "Please Define if use OTAA or ABP"
     },
-    enabled: {
-        required: false, message: "Please Define if transmit by LoRaWan"
+    class_mode: {
+        required: false, message: "Please provide a class mode"
+    },
+    band: {
+        type: "number", required: false
+    },
+    sub_band: {
+        type: "number", required: false
+    },
+    data_rate: {
+        type: "number", required: false
+    },
+    rx2_dr: {
+        type: "number", required: false
+    },
+    rx2_freq_hz: {
+        type: "number", required: false
+    },
+    adr: {
+        type: "boolean", required: false
+    },
+    confirm_mode: {
+        type: "boolean", required: false
     }
 });
 

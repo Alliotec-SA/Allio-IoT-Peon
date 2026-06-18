@@ -52,5 +52,5 @@ export const useRest = <D>({ read, update }: RestRequestOptions<D>) => {
     loadData();
   }, [loadData]);
 
-  return { loadData, saveData, saving, setData, data, errorMessage } as const;
+  return { loadData, saveData, save, saving, setData, data, errorMessage } as const;
 };

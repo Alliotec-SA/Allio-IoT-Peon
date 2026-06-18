@@ -31,6 +31,13 @@ export interface DeviceLoRaWanSettings {
   apps_key: string;
   enabled: boolean;
   class_mode: string;
+  band: number;
+  sub_band: number;
+  data_rate: number;
+  rx2_dr: number;
+  rx2_freq_hz: number;
+  adr: boolean;
+  confirm_mode: boolean;
 }
 
 export interface LightState {
