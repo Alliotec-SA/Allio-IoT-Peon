@@ -835,6 +835,13 @@ void callbackForHttpCommands(const String& command){
     return;
   }
 
+  if (command == "readElectrifier") {
+    SerialDebug.println("Reading electrifier via HTTP command");
+    deviceStateService.updateStartAnalyzingProcess(true);
+    ackCommandOnActiveChannels("readElectrifier", LORAWAN_COMMANDS_READ_ELECTRIFIER, true, "");
+    return;
+  }
+
   if (command == "checkElectrifierState") {
     SerialDebug.println("Checking electrifier state via HTTP command");
     ackCommandOnActiveChannels("checkElectrifierState", LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE, true, "");
