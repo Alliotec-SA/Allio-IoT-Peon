@@ -53,6 +53,7 @@ class DeviceStateService : public StatefulService<DeviceState> {
   DeviceStateService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
   void updateLastValue(LastResult value);
   void updateIsRunningAnalyzingProcess(boolean value);
+  void updateStartAnalyzingProcess(boolean value);
   void updateElectrifierState(boolean value);
   boolean isElectrifierTurnedOn();
   boolean startAnalyzingProcess();

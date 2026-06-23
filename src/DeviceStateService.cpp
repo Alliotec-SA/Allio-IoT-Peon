@@ -23,6 +23,12 @@ void DeviceStateService::updateIsRunningAnalyzingProcess(boolean value){
   });
 } 
 
+void DeviceStateService::updateStartAnalyzingProcess(boolean value){
+  read([&](DeviceState& settings) {
+    settings.startAnalyzingProcess = value;
+  });
+}
+
 void DeviceStateService::updateElectrifierState(boolean value){
   read([&](DeviceState& settings) {
     settings.isTurnedOn = value;

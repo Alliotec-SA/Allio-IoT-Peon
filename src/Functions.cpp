@@ -952,6 +952,7 @@ bool LoRaWanValidateAllDownloadedCommands(const LoRaWanDownlinkContext* ctx) {
       case LORAWAN_COMMANDS_CHECK_ELECTRIFIER_ON_STATE:
       case LORAWAN_COMMANDS_TURN_ON_ELECTRIFIER:
       case LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER:
+      case LORAWAN_COMMANDS_READ_ELECTRIFIER:
         if (c.len != 0) return false;
         break;
       default: return false;
@@ -992,6 +993,13 @@ void LoRaWanExecuteDownloadedCommands(LoRaWanDownlinkContext* ctx) {
         const ElectrifierAckContext ack = {"turnOffDevice", LORAWAN_COMMANDS_TURN_OFF_ELECTRIFIER, true, "OFF"};
         turnOnElectrifier(false, &isElectrifierTurnedOn, &deviceStateService, &ack);
         c.success = true;
+        break;
+      }
+
+      case LORAWAN_COMMANDS_READ_ELECTRIFIER: {
+        deviceStateService.updateStartAnalyzingProcess(true);
+        c.success = true;
+        ackCommandOnActiveChannels("readElectrifier", LORAWAN_COMMANDS_READ_ELECTRIFIER, true, "");
         break;
       }
 
