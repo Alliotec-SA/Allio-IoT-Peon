@@ -39,12 +39,6 @@ unsigned long runAnalyzerIntervalMs = UPDATE_TIME_IN_HOURS * 3600000;
 SoftTimer timerRequestCommandsHTTP(5000);
 SoftTimer timerLoraWanHeartbeat(LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECONDS * 1000);
 
-
-
-struct RTCData {
-  uint8_t wakeup_cycle;  // 0 or 1
-};
-
 RTCData rtcData;
 LoraWan lorawan(Serial);
 
