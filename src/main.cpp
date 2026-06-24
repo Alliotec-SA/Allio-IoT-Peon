@@ -308,7 +308,7 @@ void loop() {
   // Send data by LoRaWAN if we got value and LoRaWAN is enabled, if not enabled mark as sent to reset params in next cycle
   if(hasGotValue && !loraSent && deviceLoRaWanSettingsService.isEnabled()){
     SerialDebug.println("Sending By LoRa");
-    sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery);
+    sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, lastResult.readSecuence);
     loraSent = true;
   }else if(hasGotValue && !deviceLoRaWanSettingsService.isEnabled()){
     loraSent = true; //mark to reset params

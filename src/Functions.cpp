@@ -738,8 +738,8 @@ void sendLoRaWanCommandACK(uint8_t command, boolean executionCommandDone){
   SerialDebug.print(hexPayload);
 }
 
-void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec){
-  uint8_t data[11];
+void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence){
+  uint8_t data[12];
   uint16_t value;
 
   data[0] = 0x00; // Sensor port
@@ -758,19 +758,18 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   data[6] = (uint8_t)(battery_voltage * 10.0);
   data[7] = (uint8_t)(battery_alliotec * 10.0);
   data[8] = deviceStateService.isElectrifierTurnedOn() ? 0x01 : 0x00;
+  data[9] = readSecuence;
 
-  uint16_t crc = calcCRC(data, 9);
-  data[9] = crc & 0xFF;
-  data[10] = (crc >> 8) & 0xFF;
-  
+  uint16_t crc = calcCRC(data, 10);
+  data[10] = crc & 0xFF;
+  data[11] = (crc >> 8) & 0xFF;
 
-
-   char hexPayload[23]; // 11 bytes * 2 hex chars + null terminator
+  char hexPayload[25]; // 12 bytes * 2 hex chars + null terminator
   bytesToHexString(data, sizeof(data), hexPayload, sizeof(hexPayload));
   if(!lorawan.isJoined()){
       lorawan.join();
   }
-  bool sentState = lorawan.send(12, hexPayload, false);
+  bool sentState = lorawan.send(LORAWAN_TELEMETRY_FPORT, hexPayload, false);
   SerialDebug.print("LoRaWAN send state: ");
   SerialDebug.println(sentState ? "SUCCESS" : "FAILURE");
   SerialDebug.print(hexPayload);
