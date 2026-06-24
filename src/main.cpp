@@ -7,6 +7,7 @@
 #include <DeviceLoRaWanSettingsService.h>
 #include "CycleAnalyzer.h"
 #include "LoraWan.h"
+#include "ReadSecuenceService.h"
 #include "SoftTimer.h"
 
 
@@ -132,6 +133,7 @@ void setup() {
   deviceSettingsService.begin();
   deviceLoRaWanSettingsService.begin();
   deviceStateService.begin();
+  readSecuenceService.begin(esp8266React.getFS());
 
   // Set base for ultra energy saving mode
   
@@ -251,9 +253,9 @@ void loop() {
     lastResult.timeout = result.timeout;
     lastResult.lastChecked = millis();
     if (!result.timeout) {
-      lastResult.readSecuence = deviceStateService.incrementReadSecuence();
+      lastResult.readSecuence = readSecuenceService.increment();
     } else {
-      lastResult.readSecuence = deviceStateService.getReadSecuence();
+      lastResult.readSecuence = readSecuenceService.get();
     }
     deviceStateService.updateLastValue(lastResult);
     

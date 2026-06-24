@@ -5,6 +5,7 @@
 #include <FSPersistence.h>
 #include <SettingValue.h>
 #include "Settings.h"
+#include "ReadSecuenceService.h"
 
 #define DEVICE_STATE_FILE "/config/deviceState.json"
 #define DEVICE_STATE_PATH "/rest/deviceState"
@@ -16,7 +17,6 @@ class DeviceState {
   boolean startAnalyzingProcess = false;
   boolean isTurnedOn = true;
   boolean isUltraEnergySavingMode = false;
-  uint8_t readSecuence = 0;
   /** Set when REST writes is_turned_on (even if value unchanged). */
   boolean electrifierAckPending = false;
 
@@ -32,7 +32,7 @@ class DeviceState {
     root["is_running_analyzing_process"] = settings.isRunningAnalyzingProcess;
     root["is_turned_on"] = settings.isTurnedOn;
     root["is_ultra_energy_saving_mode"] = settings.isUltraEnergySavingMode;
-    root["read_secuence"] = settings.readSecuence;
+    root["read_secuence"] = readSecuenceService.get();
   }
 
 
@@ -46,7 +46,6 @@ class DeviceState {
       settings.electrifierAckPending = true;
     }
     settings.isUltraEnergySavingMode = root["is_ultra_energy_saving_mode"] | settings.isUltraEnergySavingMode;
-    settings.readSecuence = root["read_secuence"] | settings.readSecuence;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -63,8 +62,6 @@ class DeviceStateService : public StatefulService<DeviceState> {
   boolean isUltraEnergySavingMode();
   /** True once after UI/REST sets is_turned_on; cleared on read. */
   boolean consumeElectrifierAckPending();
-  uint8_t getReadSecuence();
-  uint8_t incrementReadSecuence();
   void begin();
 
  private:
