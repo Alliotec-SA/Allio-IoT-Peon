@@ -69,6 +69,24 @@ boolean DeviceStateService::consumeElectrifierAckPending() {
   return pending;
 }
 
+uint8_t DeviceStateService::getReadSecuence() {
+  uint8_t value = 0;
+  read([&](DeviceState& settings) {
+    value = settings.readSecuence;
+  });
+  return value;
+}
+
+uint8_t DeviceStateService::incrementReadSecuence() {
+  uint8_t value = 0;
+  update([&](DeviceState& settings) {
+    settings.readSecuence++;
+    value = settings.readSecuence;
+    return StateUpdateResult::CHANGED;
+  }, "readSecuence");
+  return value;
+}
+
 void DeviceStateService::begin() {
   _fsPersistence.readFromFS();
 }

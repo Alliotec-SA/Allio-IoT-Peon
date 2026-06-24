@@ -8,6 +8,7 @@ void CycleAnalyzer::begin() {
   prevSignalState = HIGH;
   reset();
   isRunning = false;
+  result.readSecuence = 0;
 }
 
 void CycleAnalyzer::start() {
@@ -95,6 +96,7 @@ void CycleAnalyzer::finalize(unsigned long period, bool isTimeout) {
   result.vMax = ads.computeVolts(maxVal);
   result.timeout = isTimeout;
   result.ready = true;
+  result.readSecuence = 0;
   isRunning = false;
 }
 

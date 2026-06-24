@@ -250,6 +250,11 @@ void loop() {
     lastResult.ready = result.ready;
     lastResult.timeout = result.timeout;
     lastResult.lastChecked = millis();
+    if (!result.timeout) {
+      lastResult.readSecuence = deviceStateService.incrementReadSecuence();
+    } else {
+      lastResult.readSecuence = deviceStateService.getReadSecuence();
+    }
     deviceStateService.updateLastValue(lastResult);
     
 
@@ -289,6 +294,7 @@ void loop() {
     lastResult.signalVoltage = !result.timeout ? (int) getSignalVp(result.vMax) : 0;
 
 
+    SerialDebug.print("Read secuence: "); SerialDebug.println(lastResult.readSecuence);
     SerialDebug.print("Periodo: "); SerialDebug.println(lastResult.signalPeriod);
     SerialDebug.print("Vmin: "); SerialDebug.println(result.vMin, 3);
     SerialDebug.print("Vmax: "); SerialDebug.println(result.vMax, 3);
@@ -311,7 +317,7 @@ void loop() {
   // Send data by HTTP if we got value and HTTP is enabled and WiFi is connected, if HTTP is not enabled mark as sent to reset params in next cycle, if WiFi is not connected start waiting for WiFi and send when it gets connected
   if(hasGotValue && !jsonSent && deviceSettingsService.isEnabled() && WiFi.isConnected()){
     SerialDebug.println("Sending By Wifi");
-    sendDeviceDataByHttp(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, isElectrifierTurnedOn);
+    sendDeviceDataByHttp(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, lastResult.readSecuence, isElectrifierTurnedOn);
     jsonSent = true;
   }else if(hasGotValue && !deviceSettingsService.isEnabled()){
     jsonSent = true; //mark to reset params

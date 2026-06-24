@@ -609,7 +609,7 @@ void sendHttpPostJson(String tag,String host, String path, String token, String 
   SerialDebug.println("===============================");
 }
 
-void sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, boolean isElectrifierTurnedOn) {
+void sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence, boolean isElectrifierTurnedOn) {
 
   String json = "{";
   json += "\"devEUI\":\"" + devEUI + "\",";
@@ -619,6 +619,7 @@ void sendDeviceDataByHttp(String host, String path, String token, String devEUI,
   json += "\"pulse_voltage\":" + String(pulse_voltage, 2) + ",";
   json += "\"pulse_time\":" + String(pulse_time) + ",";
   json += "\"battery_alliotec\":" + String(battery_alliotec, 2)+ ",";
+  json += "\"read_secuence\":" + String(readSecuence) + ",";
   json += "\"electrifier_should_be_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}";
 

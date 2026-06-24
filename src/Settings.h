@@ -64,6 +64,7 @@ struct LastResult {
     bool ready;
     unsigned long lastChecked;
     uint8_t batteryPercent;
+    uint8_t readSecuence;
     float batteryVoltage;
     float solarVoltage;
     float signalVoltage;
