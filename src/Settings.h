@@ -33,10 +33,6 @@
 
 #define RTC_ADDR 65  // safe address range is 64–127
 
-struct RTCData {
-  uint8_t wakeup_cycle;  // 0 or 1
-};
-
 #define READING_TRIES 3
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 120 
 #define UPDATE_TIME_IN_HOURS 1
@@ -63,6 +59,10 @@ struct RTCData {
 
 
 #include <Arduino.h>
+
+struct RTCData {
+  uint8_t wakeup_cycle;  // 0 or 1
+};
 
 struct LastResult {
     unsigned long signalPeriod;
