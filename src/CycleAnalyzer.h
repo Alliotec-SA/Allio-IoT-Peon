@@ -7,6 +7,7 @@
 class CycleAnalyzer {
 public:
   struct Result {
+    uint8_t readSecuence;
     unsigned long periodMs;
     int16_t minAdc;
     int16_t maxAdc;

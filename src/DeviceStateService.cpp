@@ -30,9 +30,13 @@ void DeviceStateService::updateStartAnalyzingProcess(boolean value){
 }
 
 void DeviceStateService::updateElectrifierState(boolean value){
-  read([&](DeviceState& settings) {
+  update([&](DeviceState& settings) {
+    if (settings.isTurnedOn == value) {
+      return StateUpdateResult::UNCHANGED;
+    }
     settings.isTurnedOn = value;
-  });
+    return StateUpdateResult::CHANGED;
+  }, "electrifier");
 }
 
 boolean DeviceStateService::isElectrifierTurnedOn(){
