@@ -246,19 +246,14 @@ void loop() {
     lastResult.ready = result.ready;
     lastResult.timeout = result.timeout;
     lastResult.lastChecked = millis();
-    if (!result.timeout) {
-      lastResult.readSecuence = readSecuenceService.increment();
-    } else {
-      lastResult.readSecuence = readSecuenceService.get();
-    }
+    lastResult.readSecuence = readSecuenceService.increment();
     deviceStateService.updateLastValue(lastResult);
+    hasGotValue = true;
     
 
     #ifndef DEBUG_SENT_DATA_EVEN_IF_TIMEOUT
       if(result.timeout){
         SerialDebug.println("Timeout: "); SerialDebug.println(result.periodMs);
-      }else{
-        hasGotValue = true;
       }
     #endif
     #ifdef DEBUG_SENT_DATA_EVEN_IF_TIMEOUT
@@ -272,11 +267,9 @@ void loop() {
       lastResult.batteryPercent = 100;
       lastResult.solarVoltage = 15.5;
       lastResult.battery = 12.5;
-      hasGotValue = true;
     #endif
 
     if(readingTries >= READING_TRIES){
-      hasGotValue = true;
       SerialDebug.println("Max reading attempts reached.");
     }
 
