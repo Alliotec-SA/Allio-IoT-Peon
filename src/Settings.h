@@ -56,6 +56,14 @@
 #define PIN_SETTINGS_MODE 13
 #define PIN_RAK_RESET 15
 #define PIN_TURN_ON_OFF_ELECTRIFIER 0
+/** Bound on how long to wait for one ADS1115 conversion. A conversion takes ~2.1ms at 475SPS, so
+ *  this is never reached in normal operation: it exists because the driver's own wait loop has no
+ *  timeout and spins forever if the I2C bus locks up, which the electrifier's EMI can cause.
+ *  Deliberately polled without yield() so the sampling period stays tight and predictable. */
+#define ADC_READ_TIMEOUT_MS 50UL
+/** Retries for one-off voltage readings, which run outside the edge-detection loop and can afford
+ *  another attempt rather than reporting a bogus zero. */
+#define ADC_READ_ATTEMPTS 3
 #define SIGNAL_FACTOR 2801
 #define SIGNAL_TIMEOUT 6000
 #define CHANNEL_SIGNAL 3

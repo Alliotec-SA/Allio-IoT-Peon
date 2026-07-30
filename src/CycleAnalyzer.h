@@ -48,6 +48,7 @@ private:
 
   Result result;
   State state;
+  uint16_t adcFailures;
 
   static constexpr unsigned long debounceDelayMs = 3;
   unsigned long fallingDebounceStart;
@@ -56,6 +57,7 @@ private:
   void reset();
   void finalize(unsigned long period, bool isTimeout);
   void readAdcValue();
+  bool readAdcCounts(int16_t& out);
   void changeStateToWaitingFirstFalling();
   void changeStateToWaitingRising();
   void changeStateToWaitingSecondFalling();

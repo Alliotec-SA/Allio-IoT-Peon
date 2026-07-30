@@ -1,4 +1,5 @@
 #include "CycleAnalyzer.h"
+#include "Settings.h"
 
 CycleAnalyzer::CycleAnalyzer(uint8_t signalPin, uint8_t adsChannel, unsigned long timeoutMs, Adafruit_ADS1115& adsRef)
   : signalPin(signalPin), channel(adsChannel), timeout(timeoutMs), ads(adsRef) {}
@@ -62,8 +63,29 @@ void CycleAnalyzer::update() {
   }
 }
 
+/** Bounded replacement for readADC_SingleEnded, whose wait loop has no timeout and spins forever
+ *  if the I2C bus locks up. Polled without yield() on purpose: this runs inside the edge-detection
+ *  loop, and handing control to the SDK here would stretch the sampling period unpredictably. */
+bool CycleAnalyzer::readAdcCounts(int16_t& out) {
+  ads.startADCReading(MUX_BY_CHANNEL[channel], /*continuous=*/false);
+  const unsigned long start = millis();
+  while (!ads.conversionComplete()) {
+    if (millis() - start > ADC_READ_TIMEOUT_MS) {
+      return false;
+    }
+  }
+  out = ads.getLastConversionResults();
+  return true;
+}
+
 void CycleAnalyzer::readAdcValue() {
-  int16_t val = ads.readADC_SingleEnded(channel);
+  int16_t val;
+  if (!readAdcCounts(val)) {
+    // Drop the sample instead of feeding min/max: a failed I2C read leaves the driver's buffer
+    // untouched, so the value returned would be stale bytes rather than a measurement.
+    adcFailures++;
+    return;
+  }
   if (val < minVal) minVal = val;
   if (val > maxVal) maxVal = val;
 }
@@ -84,6 +106,7 @@ CycleAnalyzer::Result CycleAnalyzer::getResult() {
 void CycleAnalyzer::reset() {
   minVal = 32767;
   maxVal = -32768;
+  adcFailures = 0;
   result.ready = false;
   result.timeout = false;
 }
@@ -98,6 +121,12 @@ void CycleAnalyzer::finalize(unsigned long period, bool isTimeout) {
   result.ready = true;
   result.readSecuence = 0;
   isRunning = false;
+  // Reported here rather than inside update(): printing in the sampling loop would stretch the
+  // period and cost the very edges this class exists to catch.
+  if (adcFailures > 0) {
+    SerialDebug.print("ADC samples dropped this attempt: ");
+    SerialDebug.println(adcFailures);
+  }
 }
 
 void CycleAnalyzer::changeStateToWaitingFirstFalling() {

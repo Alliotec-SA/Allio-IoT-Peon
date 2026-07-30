@@ -9,9 +9,34 @@
 
 extern Adafruit_ADS1115 ads;
 
+/** Same as Adafruit_ADS1X15::readADC_SingleEnded but bounded. The library version waits on
+ *  `while (!conversionComplete());` with no timeout, and conversionComplete() reads a register
+ *  whose I2C read result is discarded, so a locked bus makes it spin forever. */
+static bool readAdcCounts(uint8_t channel, int16_t &out) {
+  if (channel > 3) {
+    return false;
+  }
+  ads.startADCReading(MUX_BY_CHANNEL[channel], /*continuous=*/false);
+  const unsigned long start = millis();
+  while (!ads.conversionComplete()) {
+    if (millis() - start > ADC_READ_TIMEOUT_MS) {
+      return false;
+    }
+  }
+  out = ads.getLastConversionResults();
+  return true;
+}
+
 float getVoltage(uint8_t channel){
-  int16_t val = ads.readADC_SingleEnded(channel);
-  return ads.computeVolts(val);
+  int16_t val = 0;
+  for (uint8_t attempt = 0; attempt < ADC_READ_ATTEMPTS; attempt++) {
+    if (readAdcCounts(channel, val)) {
+      return ads.computeVolts(val);
+    }
+    SerialDebug.print("ADC read timed out on channel ");
+    SerialDebug.println(channel);
+  }
+  return 0.0f;
 }
 
 float getSignalVp(float voltage){
