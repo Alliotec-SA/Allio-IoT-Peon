@@ -264,11 +264,7 @@ void loop() {
     readingTries++;
     auto result = analyzer.getResult();
     lastResult.batteryVoltage = getBatteryVoltage();
-    // Linear map between the resting cutoff and full-charge voltages. The previous integer division
-    // by 12 could only ever yield 0 or 100, so any battery below 12V reported 0%.
-    const float batteryPct =
-        (lastResult.batteryVoltage - BATTERY_EMPTY_V) * 100.0f / (BATTERY_FULL_V - BATTERY_EMPTY_V);
-    lastResult.batteryPercent = (uint8_t)constrain(batteryPct, 0.0f, 100.0f);
+    lastResult.batteryPercent = getBatteryPercent(lastResult.batteryVoltage);
     lastResult.solarVoltage = getSolarPannelVoltage();
     lastResult.battery = getOwnBatteryVoltage();
     lastResult.ready = result.ready;

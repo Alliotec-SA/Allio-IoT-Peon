@@ -22,6 +22,7 @@ float getSignalVp(float voltage);
 
 float getOwnBatteryVoltage();
 float getBatteryVoltage();
+uint8_t getBatteryPercent(float volts);
 float getSolarPannelVoltage();
 bool hasClientConnected();
 void testBoardVoltageElement(Stream &port);

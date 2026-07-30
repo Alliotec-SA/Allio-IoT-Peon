@@ -26,6 +26,43 @@ float getBatteryVoltage(){
   return getVoltage(CHANNEL_BATTERY)*BATTERY_FACTOR;
 }
 
+/** Resting-voltage to state-of-charge points for a 12V lead-acid battery, lowest first.
+ *  The relationship is not linear: the top quarter spans 0.30V while each lower quarter spans
+ *  0.20V, so a straight line between the endpoints overstates charge across the middle. */
+struct BatteryCurvePoint {
+  float volts;
+  uint8_t percent;
+};
+
+static const BatteryCurvePoint BATTERY_CURVE[] = {
+    {11.80f, 0},
+    {12.00f, 25},
+    {12.20f, 50},
+    {12.40f, 75},
+    {12.70f, 100},
+};
+
+uint8_t getBatteryPercent(float volts) {
+  const size_t count = sizeof(BATTERY_CURVE) / sizeof(BATTERY_CURVE[0]);
+
+  if (volts <= BATTERY_CURVE[0].volts) {
+    return BATTERY_CURVE[0].percent;
+  }
+
+  for (size_t i = 1; i < count; i++) {
+    if (volts <= BATTERY_CURVE[i].volts) {
+      const BatteryCurvePoint &low = BATTERY_CURVE[i - 1];
+      const BatteryCurvePoint &high = BATTERY_CURVE[i];
+      const float ratio = (volts - low.volts) / (high.volts - low.volts);
+      // +0.5 so the value rounds instead of always truncating downwards.
+      return (uint8_t)(low.percent + ratio * (high.percent - low.percent) + 0.5f);
+    }
+  }
+
+  // Above the last point: charging or fully charged.
+  return BATTERY_CURVE[count - 1].percent;
+}
+
 float getSolarPannelVoltage(){
   return getVoltage(CHANNEL_PANEL)*SOLAR_FACTOR;
 }

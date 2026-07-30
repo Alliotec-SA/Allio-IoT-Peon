@@ -39,9 +39,6 @@
  *  command cannot abort the cycle before it settles, which would leave the device never
  *  transmitting. */
 #define MANUAL_READ_MIN_INTERVAL_MS 60000UL
-/** Resting voltage of a 12V lead-acid battery at full charge and at deep-discharge cutoff. */
-#define BATTERY_EMPTY_V 10.5f
-#define BATTERY_FULL_V 12.7f
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 120 
 #define UPDATE_TIME_IN_HOURS 1
 #define INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES 30
