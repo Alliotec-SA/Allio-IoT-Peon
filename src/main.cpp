@@ -35,6 +35,9 @@ bool jsonSent = false;
 unsigned long wifiWaitStart = 0;
 bool waitingForWiFi = false;
 unsigned long tLastManualRead = 0;
+unsigned long tSendCycleStart = 0;
+unsigned long tLoraLastAttempt = 0;
+unsigned long tJsonLastAttempt = 0;
 boolean isElectrifierTurnedOn = false;
 unsigned long runAnalyzerIntervalMs = UPDATE_TIME_IN_HOURS * 3600000;
 SoftTimer timerRequestCommandsHTTP(5000);
@@ -42,6 +45,20 @@ SoftTimer timerLoraWanHeartbeat(LORAWAN_HEART_BEAT_INTERVAL_FOR_CLASS_C_IN_SECON
 
 RTCData rtcData;
 LoraWan lorawan(Serial);
+
+/** Starts a fresh read cycle, abandoning anything the previous one left pending. A new reading
+ *  supersedes the old one, so holding on to a reading nobody managed to transmit only risks
+ *  sending stale data later. Retries within a cycle must NOT come through here: they have to keep
+ *  readingTries so the attempt limit still applies. */
+static void beginReadCycle(const char* reason) {
+  SerialDebug.print("Start read cycle: ");
+  SerialDebug.println(reason);
+  readingTries = 0;
+  hasGotValue = false;
+  loraSent = false;
+  jsonSent = false;
+  analyzer.start();
+}
 
 void setup() {
   //Wake Up Settings
@@ -233,22 +250,16 @@ void loop() {
     if((millis() - tLastManualRead) < MANUAL_READ_MIN_INTERVAL_MS){
       SerialDebug.println("Manual read blocked: cooldown active");
     }else{
-      SerialDebug.println("Start Analyzer from Device State Service");
       tLastManualRead = millis();
-      readingTries = 0;
-      hasGotValue = false;
-      loraSent = false;
-      jsonSent = false;
-      analyzer.start();
+      beginReadCycle("manual/remote request");
     }
   }
 
   //Check if we should start analyzing process from interval for non ultra energy saving mode or in full wakeup for ultra energy saving mode
   if(!deviceStateService.isUltraEnergySavingMode()){
     if(!analyzer.isAnalyzerRunning() && (millis() - tlastAnalyzerRun) >= runAnalyzerIntervalMs){
-      analyzer.start();
       tlastAnalyzerRun = millis();
-      SerialDebug.println("Start analyzing due to interval");
+      beginReadCycle("interval");
     }else if(!analyzer.isAnalyzerRunning() && !analyzer.isReady() && readingTries > 0 && readingTries < READING_TRIES && !hasGotValue){
       // Retry a timed-out read within the same cycle, same as ultra energy saving mode does below
       SerialDebug.println("Retrying signal read after timeout");
@@ -275,6 +286,11 @@ void loop() {
     if(!result.timeout || readingTries >= READING_TRIES){
       lastResult.readSecuence = readSecuenceService.increment();
       hasGotValue = true;
+      tSendCycleStart = millis();
+      // Backdate both channels so the first attempt goes out immediately instead of waiting a
+      // whole retry interval.
+      tLoraLastAttempt = tSendCycleStart - SEND_RETRY_INTERVAL_MS;
+      tJsonLastAttempt = tLoraLastAttempt;
     }
     deviceStateService.updateLastValue(lastResult);
 
@@ -322,25 +338,49 @@ void loop() {
 
   }
 
-  // Send data by LoRaWAN if we got value and LoRaWAN is enabled, if not enabled mark as sent to reset params in next cycle
-  if(hasGotValue && !loraSent && deviceLoRaWanSettingsService.isEnabled()){
-    SerialDebug.println("Sending By LoRa");
-    sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, lastResult.readSecuence);
+  // Each transport resolves on its own: sent, skipped because it is disabled, or retried on its
+  // own schedule. Neither one's bookkeeping depends on the other, so a channel that cannot deliver
+  // can no longer keep the other from ever being attempted again.
+  if(hasGotValue && !loraSent){
+    if(!deviceLoRaWanSettingsService.isEnabled()){
+      loraSent = true; // nothing to do on this channel
+    }else if((millis() - tLoraLastAttempt) >= SEND_RETRY_INTERVAL_MS){
+      tLoraLastAttempt = millis();
+      SerialDebug.println("Sending By LoRa");
+      loraSent = sendLoRaWan(lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, lastResult.readSecuence);
+      if(!loraSent){
+        SerialDebug.println("LoRa send failed, will retry");
+      }
+    }
+  }
+
+  if(hasGotValue && !jsonSent){
+    if(!deviceSettingsService.isEnabled()){
+      jsonSent = true; // nothing to do on this channel
+    }else if(WiFi.isConnected() && (millis() - tJsonLastAttempt) >= SEND_RETRY_INTERVAL_MS){
+      tJsonLastAttempt = millis();
+      SerialDebug.println("Sending By Wifi");
+      jsonSent = sendDeviceDataByHttp(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, lastResult.readSecuence, isElectrifierTurnedOn);
+      if(!jsonSent){
+        SerialDebug.println("HTTP send failed, will retry");
+      }
+    }
+  }
+
+  // Absolute cap. Without it a transport that never recovers (HTTP enabled while the station never
+  // associates, for instance) would hold the cycle open forever and silence the other channel.
+  if(hasGotValue && (!loraSent || !jsonSent) && (millis() - tSendCycleStart) >= SEND_GIVE_UP_MS){
+    if(!loraSent){
+      SerialDebug.println("Giving up LoRa send for this reading");
+    }
+    if(!jsonSent){
+      SerialDebug.println("Giving up HTTP send for this reading");
+    }
     loraSent = true;
-  }else if(hasGotValue && !deviceLoRaWanSettingsService.isEnabled()){
-    loraSent = true; //mark to reset params
-  }
-
-  // Send data by HTTP if we got value and HTTP is enabled and WiFi is connected, if HTTP is not enabled mark as sent to reset params in next cycle, if WiFi is not connected start waiting for WiFi and send when it gets connected
-  if(hasGotValue && !jsonSent && deviceSettingsService.isEnabled() && WiFi.isConnected()){
-    SerialDebug.println("Sending By Wifi");
-    sendDeviceDataByHttp(deviceSettingsService.getServer(), deviceSettingsService.getPath(), deviceSettingsService.getToken(), deviceSettingsService.getDevEUI(), lastResult.batteryVoltage, lastResult.batteryPercent, lastResult.solarVoltage, lastResult.signalVoltage, lastResult.signalPeriod, lastResult.battery, lastResult.readSecuence, isElectrifierTurnedOn);
     jsonSent = true;
-  }else if(hasGotValue && !deviceSettingsService.isEnabled()){
-    jsonSent = true; //mark to reset params
   }
 
-  // If we got value and sent by LoRaWAN and HTTP, we can reset state for next cycle 
+  // If we got value and sent by LoRaWAN and HTTP, we can reset state for next cycle
   if(hasGotValue && loraSent && jsonSent && !deviceStateService.isUltraEnergySavingMode()){
       jsonSent = false;
       loraSent = false;

@@ -576,10 +576,10 @@ void sendJsonPost(String host, String path, String token, String devEUI, float b
   client.stop();
 }*/
 
-void sendHttpPostJson(String tag,String host, String path, String token, String devEUI, String json) {
+bool sendHttpPostJson(String tag,String host, String path, String token, String devEUI, String json) {
   if (WiFi.status() != WL_CONNECTED) {
     SerialDebug.println("❌ ERROR: Not connected to WiFi.");
-    return;
+    return false;
   }
 
   std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure());
@@ -612,7 +612,7 @@ void sendHttpPostJson(String tag,String host, String path, String token, String 
     }
 
     SerialDebug.println("===================================");
-    return;
+    return false;
   }
 
   https.addHeader("Content-Type", "application/json");
@@ -644,9 +644,10 @@ void sendHttpPostJson(String tag,String host, String path, String token, String 
   SerialDebug.println(json);
   https.end();
   SerialDebug.println("===============================");
+  return httpCode == 200;
 }
 
-void sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence, boolean isElectrifierTurnedOn) {
+bool sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence, boolean isElectrifierTurnedOn) {
 
   String json = "{";
   json += "\"devEUI\":\"" + devEUI + "\",";
@@ -660,7 +661,7 @@ void sendDeviceDataByHttp(String host, String path, String token, String devEUI,
   json += "\"electrifier_should_be_on\":" + String(isElectrifierTurnedOn ? "true" : "false");
   json += "}";
 
-  sendHttpPostJson("SendDeviceData", host, path, token, devEUI, json);
+  return sendHttpPostJson("SendDeviceData", host, path, token, devEUI, json);
 }
 
 
@@ -775,7 +776,7 @@ void sendLoRaWanCommandACK(uint8_t command, boolean executionCommandDone){
   SerialDebug.print(hexPayload);
 }
 
-void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence){
+bool sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence){
   uint8_t data[12];
   uint16_t value;
 
@@ -810,7 +811,7 @@ void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_vo
   SerialDebug.print("LoRaWAN send state: ");
   SerialDebug.println(sentState ? "SUCCESS" : "FAILURE");
   SerialDebug.print(hexPayload);
-
+  return sentState;
 }
 
 void bytesToHexString(const uint8_t* data, size_t len, char* outHex, size_t outLen) {

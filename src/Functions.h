@@ -28,7 +28,8 @@ bool hasClientConnected();
 void testBoardVoltageElement(Stream &port);
 void sendLoRaWanCommandACK(uint8_t command, boolean executionCommandDone);
 void ackCommandOnActiveChannels(const String &httpAction, uint8_t loraCmd, boolean executionCommandDone, const String &httpResponse);
-void sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence);
+/** @return true only if the module reported the uplink as sent, so the caller can retry. */
+bool sendLoRaWan(float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence);
 uint16_t calcCRC(const uint8_t *buf, uint8_t len);
 void bytesToHexString(const uint8_t* data, size_t len, char* outHex, size_t outLen);
 void goToSleep(unsigned long t0);
@@ -45,8 +46,9 @@ struct ElectrifierAckContext {
 
 void turnOnElectrifier(boolean state, boolean *isTurnedOn, DeviceStateService *deviceStateService, const ElectrifierAckContext *ack = nullptr);
 
-void sendHttpPostJson(String tag, String host, String path, String token, String devEUI, String json);
-void sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence, boolean isElectrifierTurnedOn);
+/** @return true only on HTTP 200, so the caller can retry. */
+bool sendHttpPostJson(String tag, String host, String path, String token, String devEUI, String json);
+bool sendDeviceDataByHttp(String host, String path, String token, String devEUI, float battery_voltage, float battery_percentage, float panel_voltage, float pulse_voltage, unsigned long pulse_time, float battery_alliotec, uint8_t readSecuence, boolean isElectrifierTurnedOn);
 void ackCommandPost(String host, String path, String token, String devEUI, String command, boolean executionCommandDone, String response);
 bool getCommandsByHTTP(String host, String path, String token, String devEUI, void (*callback)(const String&));
 void requestCommandsOverHTTP();

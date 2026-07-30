@@ -39,6 +39,12 @@
  *  command cannot abort the cycle before it settles, which would leave the device never
  *  transmitting. */
 #define MANUAL_READ_MIN_INTERVAL_MS 60000UL
+/** Spacing between retries of the same transport. A LoRaWAN uplink blocks for seconds and the
+ *  band has duty cycle limits, so retries are few and well separated rather than tight. */
+#define SEND_RETRY_INTERVAL_MS 60000UL
+/** Absolute cap on how long a reading may wait for its transports. Past this the pending channels
+ *  are abandoned so the cycle closes and the next reading starts from a clean state. */
+#define SEND_GIVE_UP_MS 300000UL
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 120 
 #define UPDATE_TIME_IN_HOURS 1
 #define INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES 30
