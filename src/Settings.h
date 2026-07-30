@@ -64,6 +64,10 @@
 /** Retries for one-off voltage readings, which run outside the edge-detection loop and can afford
  *  another attempt rather than reporting a bogus zero. */
 #define ADC_READ_ATTEMPTS 3
+/** Faster bus means each transaction spends less time exposed to the electrifier's noise, but also
+ *  less margin against it. Watch the dropped-sample count reported per attempt: if it climbs, this
+ *  is the first value to walk back (200000 keeps half the gain with more margin). */
+#define I2C_CLOCK_HZ 400000UL
 #define SIGNAL_FACTOR 2801
 #define SIGNAL_TIMEOUT 6000
 #define CHANNEL_SIGNAL 3

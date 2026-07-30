@@ -177,9 +177,15 @@ void setup() {
   delay(200);
 
 
-  ads.begin();
-  ads.setDataRate(RATE_ADS1115_475SPS);
-  Wire.setClock(100000);
+  // Sample as fast as the parts allow: the firmware detects the signal peak by taking the maximum
+  // over samples, with no hardware peak hold, so the odds of landing inside a pulse scale directly
+  // with the sampling rate. 860SPS is noisier per sample than 475SPS, but at this divider ratio
+  // that noise is under 0.1% of the measured value.
+  if (!ads.begin()) {
+    SerialDebug.println("ADS1115 not responding on I2C");
+  }
+  ads.setDataRate(RATE_ADS1115_860SPS);
+  Wire.setClock(I2C_CLOCK_HZ);
   
   analyzer.begin();
   t0 = millis();
