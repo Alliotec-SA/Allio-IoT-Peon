@@ -229,6 +229,10 @@ void loop() {
       analyzer.start();
       tlastAnalyzerRun = millis();
       SerialDebug.println("Start analyzing due to interval");
+    }else if(!analyzer.isAnalyzerRunning() && !analyzer.isReady() && readingTries > 0 && readingTries < READING_TRIES && !hasGotValue){
+      // Retry a timed-out read within the same cycle, same as ultra energy saving mode does below
+      SerialDebug.println("Retrying signal read after timeout");
+      analyzer.start();
     }
   }else if(!analyzer.isAnalyzerRunning() && !analyzer.isReady() && readingTries < READING_TRIES && !hasGotValue){
     SerialDebug.println("Start analyzing in ultra energy saving mode due to max time without client connection");
@@ -246,10 +250,14 @@ void loop() {
     lastResult.ready = result.ready;
     lastResult.timeout = result.timeout;
     lastResult.lastChecked = millis();
-    lastResult.readSecuence = readSecuenceService.increment();
+    // Only settle the cycle (and burn a sequence number) on a real read or once retries are exhausted;
+    // otherwise let the retry branches above start another attempt.
+    if(!result.timeout || readingTries >= READING_TRIES){
+      lastResult.readSecuence = readSecuenceService.increment();
+      hasGotValue = true;
+    }
     deviceStateService.updateLastValue(lastResult);
-    hasGotValue = true;
-    
+
 
     #ifndef DEBUG_SENT_DATA_EVEN_IF_TIMEOUT
       if(result.timeout){
