@@ -34,6 +34,7 @@ bool loraSent = false;
 bool jsonSent = false;
 unsigned long wifiWaitStart = 0;
 bool waitingForWiFi = false;
+unsigned long tLastManualRead = 0;
 boolean isElectrifierTurnedOn = false;
 unsigned long runAnalyzerIntervalMs = UPDATE_TIME_IN_HOURS * 3600000;
 SoftTimer timerRequestCommandsHTTP(5000);
@@ -166,6 +167,8 @@ void setup() {
   analyzer.begin();
   t0 = millis();
   tlastAnalyzerRun = t0;
+  // Backdate so the first manual read after boot is never rejected by the rate limit.
+  tLastManualRead = t0 - MANUAL_READ_MIN_INTERVAL_MS;
   hasGotValue = false; 
   readingTries = 0;
   loraSent = false;
@@ -217,10 +220,27 @@ void loop() {
     timerRequestCommandsHTTP.reset();
   }
 
-  // Check if we should start analyzing process from manual or remote activation
-  if(!analyzer.isAnalyzerRunning() && deviceStateService.startAnalyzingProcess()){
-    SerialDebug.println("Start Analyzer from Device State Service");
-    analyzer.start();
+  // Manual or remote read request. Restarts the cycle from scratch so the manual reading gets its
+  // own full set of retries instead of inheriting a partially spent counter, and so it is not
+  // blocked by send flags left over from a previous cycle. Any reading still pending transmission
+  // is discarded in favour of the fresh one.
+  //
+  // Rate limited on purpose: each analyzer.start() resets the signal timeout window, so a server
+  // that keeps re-issuing the command every HTTP poll would restart the measurement forever and the
+  // device would never converge on a reading nor transmit one. Accepting one request per cooldown
+  // leaves the cycle enough room to run its retries and send before another restart is allowed.
+  if(deviceStateService.startAnalyzingProcess()){
+    if((millis() - tLastManualRead) < MANUAL_READ_MIN_INTERVAL_MS){
+      SerialDebug.println("Manual read blocked: cooldown active");
+    }else{
+      SerialDebug.println("Start Analyzer from Device State Service");
+      tLastManualRead = millis();
+      readingTries = 0;
+      hasGotValue = false;
+      loraSent = false;
+      jsonSent = false;
+      analyzer.start();
+    }
   }
 
   //Check if we should start analyzing process from interval for non ultra energy saving mode or in full wakeup for ultra energy saving mode
@@ -244,7 +264,11 @@ void loop() {
     readingTries++;
     auto result = analyzer.getResult();
     lastResult.batteryVoltage = getBatteryVoltage();
-    lastResult.batteryPercent = ((int)lastResult.batteryVoltage/12)*100;
+    // Linear map between the resting cutoff and full-charge voltages. The previous integer division
+    // by 12 could only ever yield 0 or 100, so any battery below 12V reported 0%.
+    const float batteryPct =
+        (lastResult.batteryVoltage - BATTERY_EMPTY_V) * 100.0f / (BATTERY_FULL_V - BATTERY_EMPTY_V);
+    lastResult.batteryPercent = (uint8_t)constrain(batteryPct, 0.0f, 100.0f);
     lastResult.solarVoltage = getSolarPannelVoltage();
     lastResult.battery = getOwnBatteryVoltage();
     lastResult.ready = result.ready;

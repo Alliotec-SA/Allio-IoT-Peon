@@ -34,6 +34,14 @@
 #define RTC_ADDR 65  // safe address range is 64–127
 
 #define READING_TRIES 3
+/** Cooldown after an accepted manual/remote read request. Must exceed the worst-case read cycle
+ *  (READING_TRIES attempts of up to 2 x SIGNAL_TIMEOUT each) so a client that keeps re-issuing the
+ *  command cannot abort the cycle before it settles, which would leave the device never
+ *  transmitting. */
+#define MANUAL_READ_MIN_INTERVAL_MS 60000UL
+/** Resting voltage of a 12V lead-acid battery at full charge and at deep-discharge cutoff. */
+#define BATTERY_EMPTY_V 10.5f
+#define BATTERY_FULL_V 12.7f
 #define MAX_TIME_TO_START_SETUP_IN_SECONDS 120 
 #define UPDATE_TIME_IN_HOURS 1
 #define INTERNAL_WAKEUP_TO_CHECK_UPDATE_TIME_IN_MINUTES 30
